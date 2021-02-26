@@ -1,11 +1,11 @@
 const MultipathServer = require("ws-multipath");
 const url = require("url");
 const objects = require("./custom-objects");
-const server = new MultipathServer({ port: 8080 });
 HOST_PATH = "/startgame";
 PLAYER_PATH = "/connect";
 SERVER_PORT = 8080;
 
+const server = new MultipathServer({ port: SERVER_PORT });
 const wss_host = new server.createHandler({ path: HOST_PATH });
 const wss_players = new server.createHandler({ path: PLAYER_PATH });
 const { v4: uuidv4 } = require("uuid");
@@ -16,7 +16,7 @@ var messages = [];
 let host = "";
 
 /*
-Helper fucntions
+Helper functions
 */
 
 //Parse JSON from URIs
@@ -35,6 +35,9 @@ function getJsonFromUrl(url) {
   return result;
 }
 
+/*
+  This block is the players endpoint of the websocket server
+*/
 wss_players.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
   let str = req.url;
@@ -63,11 +66,14 @@ wss_players.on("connection", (socket, req) => {
   });
 });
 
+/*
+  This block is the hosts endpoint of the websocket server
+*/
 wss_host.on("connection", (socket, req) => {
   let str = req.url;
   const params = getJsonFromUrl(str.substring(HOST_PATH.length));
 
-  if (params === undefined || params?.theme === "default") {
+  if (params === undefined || params.theme === "default") {
     //Set a default theme
     console.log("Set default");
   } else if (params.theme !== undefined && params.theme !== "default") {
