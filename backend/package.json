@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend socket servers",
   "main": "socket-servers.js",
+  "repository": "https://github.com/JacksonHowe/what-gifs",
   "dependencies": {
     "jest": "^26.6.3",
     "uuid": "^8.3.2",
