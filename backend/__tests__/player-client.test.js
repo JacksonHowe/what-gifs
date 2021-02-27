@@ -6,7 +6,6 @@ describe("Testing the player socket endpoints", () => {
 
     const ws = new WebSocket("ws://localhost:8080" + CLIENT_ENDPOINT)
       .on("message", msg => {
-        console.log(msg);
         expect(JSON.parse(msg).status).toBe(400);
         // expect(10).toBe(10);
         ws.close();
@@ -21,7 +20,6 @@ describe("Testing the player socket endpoints", () => {
       "ws://localhost:8080" + CLIENT_ENDPOINT + "?fakeParam=123"
     )
       .on("message", msg => {
-        console.log(msg);
         expect(JSON.parse(msg).status).toBe(400);
         // expect(10).toBe(10);
         ws.close();
@@ -36,7 +34,6 @@ describe("Testing the player socket endpoints", () => {
       "ws://localhost:8080" + CLIENT_ENDPOINT + "?gameID=WDYM&name=alice"
     )
       .on("message", msg => {
-        console.log(msg);
         expect(JSON.parse(msg).status).toBe(400);
 
         // expect(10).toBe(10);
@@ -56,7 +53,6 @@ describe("Testing the player socket endpoints", () => {
           "?gameID=WDYM&playerID=abc&name=alice"
       )
         .on("message", msg => {
-          console.log(msg);
           expect(JSON.parse(msg).status).toBe(200);
           expect(JSON.parse(msg).captions).toBeDefined();
           // expect(10).toBe(10);
@@ -78,7 +74,6 @@ describe("Testing the player socket endpoints", () => {
           "?gameID=WDYM&playerID=abc&name=alice&oneMore=extra"
       )
         .on("message", msg => {
-          console.log(msg);
           expect(JSON.parse(msg).status).toBe(200);
           expect(JSON.parse(msg).captions).toBeDefined();
           // expect(10).toBe(10);
