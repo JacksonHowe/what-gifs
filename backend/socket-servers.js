@@ -1,6 +1,7 @@
 const MultipathServer = require("ws-multipath");
 const url = require("url");
 const objects = require("./custom-objects");
+// const State = require("./game-state");
 HOST_PATH = "/startgame";
 PLAYER_PATH = "/connect";
 SERVER_PORT = 8080;
@@ -64,6 +65,11 @@ wss_players.on("connection", (socket, req) => {
     var obj = JSON.parse(data);
     //Call methods that invoke game logic
   });
+
+  //Do whatever cleanup needs to be done when a player client disconnects
+  socket.on("close", () => {
+    console.log("Goodbye");
+  });
 });
 
 /*
@@ -86,6 +92,10 @@ wss_host.on("connection", (socket, req) => {
 
   socket.on("message", data => {
     //Send message to module to process and change things
+  });
+  //Do cleanup when the host client disconnects
+  socket.on("close", () => {
+    console.log("Goodbye");
   });
 });
 
