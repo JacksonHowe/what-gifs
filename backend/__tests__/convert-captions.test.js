@@ -12,6 +12,13 @@ describe("Verify the Captions objects", () => {
     expect(object.submissions).toContain(c);
   });
 
+  test("Test if shuffle really works", () => {
+    let arr1 = object.submissions;
+    object = new Captions("./__tests__/test-captions.txt");
+    let arr2 = object.submissions;
+    expect(arr1).not.toEqual(arr2);
+  });
+
   test("Test corner cases", () => {
     let length = object.submissions.length;
     expect(length).toEqual(object.submissions.length);
