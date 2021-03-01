@@ -1,4 +1,5 @@
 const MultipathServer = require("ws-multipath");
+const logger = require("./logger")(module);
 const url = require("url");
 const objects = require("./custom-objects");
 // const State = require("./game-state");
@@ -43,7 +44,7 @@ wss_players.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
   let str = req.url;
   const params = getJsonFromUrl(str.substring(PLAYER_PATH.length));
-  console.log(params);
+  logger.info(params);
 
   if (
     params === undefined ||
@@ -51,10 +52,10 @@ wss_players.on("connection", (socket, req) => {
     params.playerID == undefined ||
     params.name === undefined
   ) {
-    console.log("Player didn't pass the correct params");
+    logger.error("Player didn't pass the correct params");
     socket.send(JSON.stringify(objects.error()));
   } else {
-    console.log("Player passed the right params");
+    logger.info("Player passed the right params");
     //Send caption to players
     socket.send(JSON.stringify(objects.captions()));
     //Send players array to host when a new player joins
@@ -68,7 +69,7 @@ wss_players.on("connection", (socket, req) => {
 
   //Do whatever cleanup needs to be done when a player client disconnects
   socket.on("close", () => {
-    console.log("Goodbye");
+    logger.info("Goodbye");
   });
 });
 
@@ -81,10 +82,10 @@ wss_host.on("connection", (socket, req) => {
 
   if (params === undefined || params.theme === "default") {
     //Set a default theme
-    console.log("Set default");
+    logger.info("Set default theme");
   } else if (params.theme !== undefined && params.theme !== "default") {
     //Set a default theme
-    console.log("custom");
+    logger.info("Set custom theme");
   }
 
   //Set a GAMEUUID and send it back to the
@@ -95,7 +96,7 @@ wss_host.on("connection", (socket, req) => {
   });
   //Do cleanup when the host client disconnects
   socket.on("close", () => {
-    console.log("Goodbye");
+    logger.info("Goodbye");
   });
 });
 
