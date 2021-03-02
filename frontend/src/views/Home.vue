@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="text-center">
       <v-col cols="12">
-        <v-btn>
+        <v-btn to="/game">
           Join Game
         </v-btn>
       </v-col>

@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-toolbar>
+    <v-app-bar app>
       <v-toolbar-title>What GIFs</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
@@ -11,7 +11,7 @@
           <router-link to="/about">About</router-link>
         </v-btn>
       </v-toolbar-items>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-main>
       <router-view />
