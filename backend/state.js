@@ -1,8 +1,9 @@
-//require the player object
-//require the submission object
+// const Player = require("../player");
+// const Submission = require("./submission");
+//Do I actually need these? I don't think so...
 
 module.exports = function State(theme) {
-  this.judge = "";
+  this.judge = {};
   this.theme = theme;
   this.submissions = [];
   this.gif = "";
