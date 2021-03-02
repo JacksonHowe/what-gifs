@@ -1,3 +1,6 @@
+//require the player object
+//require the submission object
+
 module.exports = function State(theme) {
   this.judge = "";
   this.theme = theme;
