@@ -28,14 +28,14 @@ module.exports = function Captions(caption_file = DEFAULT_CAPTION_FILE_PATH) {
   textByLine.pop(); //Remove the end line ''
   shuffle(textByLine);
 
-  this.submissions = textByLine;
+  this.contents = textByLine;
   this.next = 0;
   this.getCaption = function() {
-    if (this.next >= this.submissions.length - 1) {
+    if (this.next >= this.contents.length - 1) {
       //All cards used up
-      shuffle(this.submissions); //Reshuffle and begin again
+      shuffle(this.contents); //Reshuffle and begin again
       this.next = 0;
     }
-    return this.submissions[this.next++];
+    return this.contents[this.next++];
   };
 };
