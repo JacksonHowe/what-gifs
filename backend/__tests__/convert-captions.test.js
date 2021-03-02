@@ -3,7 +3,6 @@ var object = "";
 describe("Verify the Captions objects", () => {
   beforeEach(() => {
     object = new Captions("./__tests__/test-captions.txt");
-    return;
   });
   test("Read test file and verify it has everything it needs", () => {
     expect(object.submissions).toBeDefined();
