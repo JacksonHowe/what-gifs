@@ -1,4 +1,4 @@
-const Captions = require("../convert-captions");
+const Captions = require("../captions");
 var object = "";
 describe("Verify the Captions objects", () => {
   beforeEach(() => {
