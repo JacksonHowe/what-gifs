@@ -1,5 +1,5 @@
 /*
- *   Custom obnjects can be created and called from here
+ *   Custom objects can be created and called from here
  *   To add a new function/object, write the function and add it as an
  *   export at the end of the file
  */
