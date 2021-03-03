@@ -19,12 +19,13 @@ describe("Testing the state object", () => {
   });
 
   it("Test if the state object can send to a judge", done => {
-    expect.assertions(1);
+    expect.assertions(2);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
         judge = new Player(ID, NAME, ws);
         let state = new State("default");
         state.setJudge(judge);
+        expect(state.judge).toEqual(judge);
         state.judge.send(OBJECT);
       })
       .on("message", msg => {
