@@ -76,8 +76,8 @@ wss_host.on("connection", (socket, req) => {
   }
 
   //Set a GAMEUUID and send it back to the
-  socket.send(JSON.stringify(objects.genGameUuid()));
-
+  // socket.send(JSON.stringify(objects.genGameUuid()));
+  socket.send("Hello World!");
   socket.on("message", data => {
     //Send message to module to process and change things
   });
