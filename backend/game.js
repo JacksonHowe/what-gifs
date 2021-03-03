@@ -14,8 +14,9 @@ module.exports = function Game(conn, theme) {
 
   this.getJudge = function() {
     if (this.players.length !== 0) {
-      if (this.nextJudge >= this.players.length - 1) {
+      if (this.nextJudge > this.players.length - 1) {
         //All players have been judge, start over
+
         this.nextJudge = 0;
       }
       this.state.setJudge(this.players[this.nextJudge++]);

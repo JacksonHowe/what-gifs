@@ -6,6 +6,8 @@ const WebSocket = require("ws");
 const HAND_SIZE = 5;
 const ID = "1a2b3c";
 const NAME = "Testing BOT";
+const ID2 = "qazwsx";
+const NAME2 = "Alice Smith";
 const ECHO_SERVER = "ws://echo.websocket.org";
 const OBJECT = {
   message: "testing message",
@@ -45,16 +47,20 @@ describe("Testing the game object", () => {
   });
 
   it("Test if the game object can set a Judge", done => {
-    expect.assertions(2);
+    expect.assertions(4);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
         let game = new Game(ws, "default");
         let p1 = new Player(ID, NAME, {});
-        let p2 = new Player(ID, NAME, {});
+        let p2 = new Player(ID2, NAME2, {});
         game.addPlayer(p1);
         game.addPlayer(p2);
         game.getJudge();
         expect(game.state.judge).toBeDefined();
+        expect(game.state.judge).toEqual(p1);
+        game.getJudge();
+        expect(JSON.stringify(game.state.judge)).toEqual(JSON.stringify(p2));
+        game.getJudge(); //This should cause rollover in the counter
         expect(game.state.judge).toEqual(p1);
         ws.close();
       })
