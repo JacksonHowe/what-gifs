@@ -1,6 +1,6 @@
-const State = require("../state");
-const Player = require("../player");
-const Submission = require("../submission");
+const State = require("../game-objects/state");
+const Player = require("../game-objects/player");
+const Submission = require("../game-objects/submission");
 const WebSocket = require("ws");
 
 const ID = "1a2b3c";

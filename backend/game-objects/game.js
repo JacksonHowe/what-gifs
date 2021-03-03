@@ -1,7 +1,7 @@
-const logger = require("./logger")(module);
+const logger = require("../logger")(module);
 const Captions = require("./captions");
 const State = require("./state");
-const CAPTION_FILE = "../files/captions.txt";
+const CAPTION_FILE = "./../files/captions.txt";
 const HAND_SIZE = 5;
 
 module.exports = function Game(conn, theme) {

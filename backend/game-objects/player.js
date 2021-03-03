@@ -1,4 +1,4 @@
-const logger = require("./logger")(module);
+const logger = require("../logger")(module);
 
 module.exports = function Player(uuid, name, connectionId) {
   this.id = uuid;

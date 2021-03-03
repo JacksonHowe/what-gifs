@@ -1,4 +1,4 @@
-const Captions = require("../captions");
+const Captions = require("../game-objects/captions");
 var object = "";
 describe("Verify the Captions objects", () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 var fs = require("fs");
-DEFAULT_CAPTION_FILE_PATH = "../files/captions.txt";
+DEFAULT_CAPTION_FILE_PATH = "./../files/captions.txt";
 
 function shuffle(array) {
   var currentIndex = array.length,

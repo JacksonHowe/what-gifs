@@ -1,4 +1,4 @@
-const Submission = require("../submission");
+const Submission = require("../game-objects/submission");
 const ID = "1a2b3c";
 const CAPTION =
   "That face you make when you're parents forgot to make you rich";
