@@ -1,4 +1,4 @@
-const Player = require("../player");
+const Player = require("../game-objects/player");
 const WebSocket = require("ws");
 
 const ID = "1a2b3c";
