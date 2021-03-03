@@ -54,6 +54,7 @@ wss_players.on("connection", (socket, req) => {
   ) {
     logger.error("Player didn't pass the correct params");
     socket.send(JSON.stringify(objects.error()));
+    //socket.close()
   } else {
     logger.info("Player passed the right params");
     //Send caption to players
@@ -89,7 +90,8 @@ wss_host.on("connection", (socket, req) => {
   }
 
   //Set a GAMEUUID and send it back to the
-  socket.send(JSON.stringify(objects.genGameUuid()));
+  socket.send("Hello World!");
+  // socket.send(JSON.stringify(objects.genGameUuid()));
 
   socket.on("message", data => {
     //Send message to module to process and change things
