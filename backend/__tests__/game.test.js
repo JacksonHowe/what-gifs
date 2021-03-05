@@ -4,6 +4,7 @@ const Game = require("../game-objects/game");
 const Submission = require("../game-objects/captions");
 const WebSocket = require("ws");
 const HAND_SIZE = 5;
+const GAME_ID = "WDTY";
 const ID = "1a2b3c";
 const NAME = "Testing BOT";
 const ID2 = "qazwsx";
@@ -24,7 +25,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(GAME_ID, ws, "default");
         game.host.send(JSON.stringify(OBJECT));
       })
       .on("message", msg => {
@@ -38,7 +39,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(GAME_ID, ws, "default");
         expect(game.state.theme).toBe("default");
         ws.close();
       })
@@ -50,7 +51,7 @@ describe("Testing the game object", () => {
     expect.assertions(4);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(GAME_ID, ws, "default");
         let p1 = new Player(ID, NAME, {});
         let p2 = new Player(ID2, NAME2, {});
         game.addPlayer(p1);
@@ -72,7 +73,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(GAME_ID, ws, "default");
         expect(game.dealFirstHand().length).toBe(HAND_SIZE);
         ws.close();
       })

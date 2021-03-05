@@ -4,8 +4,8 @@ const State = require("./state");
 const CAPTION_FILE = "./../files/captions.txt";
 const HAND_SIZE = 5;
 
-module.exports = function Game(conn, theme) {
-  this.id = "";
+module.exports = function Game(gameID, conn, theme) {
+  this.id = gameID;
   this.host = conn; //Websocket connection
   this.players = [];
   this.nextJudge = 0;
