@@ -1,17 +1,20 @@
 const MultipathServer = require("ws-multipath");
+const WebSocket = require("ws");
+const Game = require("./game-objects/game");
+const Player = require("./game-objects/player");
+const State = require("./game-objects/state");
+const _ = require("lodash");
 const logger = require("./logger")(module);
 const url = require("url");
 const objects = require("./custom-objects");
 // const State = require("./game-state");
-HOST_PATH = "/startgame";
-PLAYER_PATH = "/connect";
+
 SERVER_PORT = 8080;
 
-const server = new MultipathServer({ port: SERVER_PORT });
-const wss_host = new server.createHandler({ path: HOST_PATH });
-const wss_players = new server.createHandler({ path: PLAYER_PATH });
-const { v4: uuidv4 } = require("uuid");
+const server = new WebSocket.Server({ port: SERVER_PORT });
 
+const { v4: uuidv4 } = require("uuid");
+var games = new Map();
 var players = [];
 var connections = [];
 var messages = [];
@@ -40,61 +43,39 @@ function getJsonFromUrl(url) {
 /*
   This block is the players endpoint of the websocket server
 */
-wss_players.on("connection", (socket, req) => {
+server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
   let str = req.url;
-  const params = getJsonFromUrl(str.substring(PLAYER_PATH.length));
-  logger.info(params);
+  logger.debug(str);
+  const params = getJsonFromUrl(str.substring(1));
+  logger.info(JSON.stringify(params));
+  let temp = {};
+  switch (params.action) {
+    case "startgame":
+      //Create game state obejcts
 
-  if (
-    params === undefined ||
-    params.gameID === undefined ||
-    params.playerID == undefined ||
-    params.name === undefined
-  ) {
-    logger.error("Player didn't pass the correct params");
-    socket.send(JSON.stringify(objects.error()));
-  } else {
-    logger.info("Player passed the right params");
-    //Send caption to players
-    socket.send(JSON.stringify(objects.captions()));
-    //Send players array to host when a new player joins
+      let o = objects.genGameUuid();
+      let game = new Game(o.gameID, socket, params.theme || "default");
+      logger.info("Created new game [" + o.gameID + "]");
+      games.set(o.gameID, game);
+      socket.send(JSON.stringify(o));
+
+      break;
+
+    default:
+      socket.send(JSON.stringify(objects.error()));
+      break;
   }
 
   //Do this stuff when a player sends in a message
   socket.on("message", data => {
+    logger.debug(data);
+    socket.send(data); //Echo for now
     var obj = JSON.parse(data);
     //Call methods that invoke game logic
   });
 
   //Do whatever cleanup needs to be done when a player client disconnects
-  socket.on("close", () => {
-    logger.info("Goodbye");
-  });
-});
-
-/*
-  This block is the hosts endpoint of the websocket server
-*/
-wss_host.on("connection", (socket, req) => {
-  let str = req.url;
-  const params = getJsonFromUrl(str.substring(HOST_PATH.length));
-
-  if (params === undefined || params.theme === "default") {
-    //Set a default theme
-    logger.info("Set default theme");
-  } else if (params.theme !== undefined && params.theme !== "default") {
-    //Set a default theme
-    logger.info("Set custom theme");
-  }
-
-  //Set a GAMEUUID and send it back to the
-  // socket.send(JSON.stringify(objects.genGameUuid()));
-  socket.send("Hello World!");
-  socket.on("message", data => {
-    //Send message to module to process and change things
-  });
-  //Do cleanup when the host client disconnects
   socket.on("close", () => {
     logger.info("Goodbye");
   });
