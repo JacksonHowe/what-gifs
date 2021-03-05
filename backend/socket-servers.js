@@ -50,21 +50,25 @@ server.on("connection", (socket, req) => {
   const params = getJsonFromUrl(str.substring(1));
   logger.info(JSON.stringify(params));
   let temp = {};
-  switch (params.action) {
-    case "startgame":
-      //Create game state obejcts
+  if (params && params.action) {
+    switch (params.action) {
+      case "startgame":
+        //Create game state obejcts
 
-      let o = objects.genGameUuid();
-      let game = new Game(o.gameID, socket, params.theme || "default");
-      logger.info("Created new game [" + o.gameID + "]");
-      games.set(o.gameID, game);
-      socket.send(JSON.stringify(o));
+        let o = objects.genGameUuid();
+        let game = new Game(o.gameID, socket, params.theme || "default");
+        logger.info("Created new game [" + o.gameID + "]");
+        games.set(o.gameID, game);
+        socket.send(JSON.stringify(o));
 
-      break;
+        break;
 
-    default:
-      socket.send(JSON.stringify(objects.error()));
-      break;
+      default:
+        socket.send(JSON.stringify(objects.error()));
+        break;
+    }
+  } else {
+    socket.send(JSON.stringify(objects.error()));
   }
 
   //Do this stuff when a player sends in a message
