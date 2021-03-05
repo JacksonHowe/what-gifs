@@ -15,12 +15,9 @@ class APIList extends Component {
     document.getElementById("requestBox").value = JSON.stringify(obj, null, 2);
   }
 
-  getCard(e) {
-    console.log("getcard");
-  }
-
   submitCaption(e) {
     const obj = {
+      type: "player",
       action: "submitCaption",
       caption: "<String here>",
       playerID: this.props.playerID
@@ -28,30 +25,68 @@ class APIList extends Component {
     this.setRequest(obj);
   }
 
+  startGame(e) {
+    const obj = { type: "host", action: "startgame", theme: "default" };
+    this.setRequest(obj);
+  }
+
+  connect(e) {
+    const obj = {
+      type: "player",
+      action: "connect",
+      playerID: this.props.playerID,
+      gameID: this.props.gameID,
+      name: "<insert name>"
+    };
+    this.setRequest(obj);
+  }
+
   getGif(e) {
-    const obj = { action: "getgif", playerID: this.props.playerID };
+    const obj = {
+      type: "player",
+      action: "getgif",
+      playerID: this.props.playerID,
+      gameID: this.props.gameID
+    };
     this.setRequest(obj);
   }
 
   chooseWinner(e) {
-    const obj = { action: "choosewinnner", winningSubmission: "<Submission>" };
+    const obj = {
+      type: "player",
+      action: "choosewinnner",
+      winningSubmission: "<Submission>",
+      gameID: this.props.gameID
+    };
     this.setRequest(obj);
   }
 
   eliminateCaption(e) {
-    const obj = { action: "eliminatecaption", submission: "<Submission>" };
+    const obj = {
+      type: "player",
+      action: "eliminatecaption",
+      submission: "<Submission>",
+      gameID: this.props.gameID
+    };
     this.setRequest(obj);
   }
 
   newGame(e) {
-    const obj = { action: "newgame", theme: "<String>" };
+    const obj = {
+      type: "host",
+      action: "newgame",
+      theme: "<String>",
+      gameID: this.props.gameID
+    };
     this.setRequest(obj);
   }
 
   replaceCaption(e) {
     const obj = {
+      type: "player",
       action: "replacecaption",
-      playerID: this.props.playerID
+      playerID: this.props.playerID,
+      gameID: this.props.gameID
     };
     this.setRequest(obj);
   }
@@ -60,21 +95,10 @@ class APIList extends Component {
     return (
       <div>
         <li>
-          <button onClick={e => this.props.hostConnect(e)}>
-            {" "}
-            (HOST) /startgame (instantly connects){" "}
-          </button>
+          <button onClick={e => this.startGame(e)}>action: startgame</button>
         </li>
         <li>
-          <button onClick={e => this.props.playerConnect(e)}>
-            {" "}
-            (PLAYER) /connect (instantly connects){" "}
-          </button>
-        </li>
-        <li>
-          <button onClick={e => this.props.playerDisconnect(e)}>
-            (PLAYER) "onDisconnect"
-          </button>
+          <button onClick={e => this.connect(e)}>action: connect</button>
         </li>
         <li>
           <button onClick={e => this.getGif(e)}>action: getgif</button>
