@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import { w3cwebsocket as W3CWebSocket } from "websocket";
 import APIList from "./api-list";
 const { v4: uuidv4 } = require("uuid");
+const URL = "ws://localhost:8080/";
 
 class ClientPlayer extends Component {
   state = { host: {}, player: {} };
@@ -15,80 +16,82 @@ class ClientPlayer extends Component {
     console.log(this.state);
   }
 
+  send(obj, socket) {
+    socket.send(JSON.stringify(obj));
+  }
+
   onSend(e) {
-    console.log(e);
     const o = JSON.parse(document.getElementById("requestBox").value);
-    this.state.ws_client.send(document.getElementById("requestBox").value);
+    if (o.type === "host") {
+      //Do host actions
+      if (o.action === "startgame") {
+        //onpen new host socket
+        this.createSocket(true, o);
+      } else if (o.action === "newgame") {
+        //Do new game request
+        console.log("newgame");
+        this.send(o, this.state.host.socket);
+      } else {
+        alert("You're sending a bad request, check again");
+      }
+    } else if (o.type === "player") {
+      //do player stuff
+      if (o.action === "connect") {
+        //open new player socket
+        this.createSocket(false, o);
+      } else {
+        this.send(o, this.state.player.socket);
+      }
+    }
+    // console.log(e);
+    // this.state.host.socket.send(document.getElementById("requestBox").value);
   }
 
   componentWillMount() {}
 
-  hostConnect(e) {
-    const URL = "ws://localhost:8080/startgame?theme=default";
-    document.getElementById("requestBox").value = URL;
-    const host = new W3CWebSocket(URL);
-    // console.log(host);
-    host.onopen = () => {
-      console.log("WebSocket Client Connected");
+  createSocket(is_host, params) {
+    let p = "";
+    let r_box = "";
+    if (!is_host) {
+      r_box = "player-response";
+      p =
+        "?action=" +
+        params.action +
+        "&playerIDe=" +
+        params.playerID +
+        "&gameID=" +
+        params.gameID;
+    } else {
+      r_box = "host-response";
+      p = "?action=" + params.action + "&theme=" + params.theme;
+    }
+    const socket = new W3CWebSocket(URL + p);
 
-      this.setState(prevState => ({
-        host: { ...prevState.host, connected: true }
-      }));
+    socket.onopen = () => {
+      this.setState(prevState =>
+        is_host
+          ? { host: { ...prevState.host, connected: true, socket: socket } }
+          : {
+              player: { ...prevState.player, connected: true, socket: socket }
+            }
+      );
     };
 
-    host.onmessage = message => {
-      // console.log(message.data);
+    socket.onmessage = message => {
+      console.log(message.data);
       var obj = JSON.parse(message.data);
-      document.getElementById("host-response").value = JSON.stringify(
-        obj,
-        null,
-        2
-      );
+      if (obj.status === 400) {
+        alert("That last one didn't work");
+      }
       if (obj.gameID) {
         this.setState({ gameID: obj.gameID });
       }
+      document.getElementById(r_box).value = JSON.stringify(obj, null, 2);
     };
 
-    this.setState(prevState => ({
-      host: { ...prevState.host, socket: host }
-    }));
-  }
-
-  playerConnect(e) {
-    //Set gameID player ID and name in url
-    var gameID = this.state.gameID;
-    var playerID = uuidv4();
-    var name = "Testing Bot";
-    this.setState({ player: { playerID: playerID, name: name } });
-    let URL = `ws://localhost:8080/connect?gameID=${gameID}&playerID=${playerID}&name=${name}`;
-    document.getElementById("requestBox").value = URL;
-    const player = new W3CWebSocket(URL);
-
-    player.onopen = () => {
-      console.log("WebSocket Player Client Connected");
-      this.setState(prevState => ({
-        player: { ...prevState.player, connected: true }
-      }));
-    };
-
-    player.onmessage = message => {
-      console.log(message.data);
-      var obj = JSON.parse(message.data);
-
-      document.getElementById("player-response").value = JSON.stringify(
-        obj,
-        null,
-        2
-      );
-    };
-
-    player.onclose = () => {
+    socket.onclose = () => {
       console.log("Disconnect");
     };
-
-    this.setState(prevState => ({
-      player: { ...prevState.player, socket: player }
-    }));
   }
 
   playerDisconnect(e) {
@@ -106,6 +109,7 @@ class ClientPlayer extends Component {
           WS Connected: Host
           <input type="checkbox" checked={this.state.host.connected}></input>
         </label>
+        <br />
         <label class="switch">
           {" "}
           WS Connected: Player
@@ -113,10 +117,8 @@ class ClientPlayer extends Component {
         </label>
         <div>
           <APIList
-            hostConnect={this.hostConnect.bind(this)}
-            playerConnect={this.playerConnect.bind(this)}
-            playerDisconnect={this.playerDisconnect.bind(this)}
             playerID={this.state.player.playerID}
+            gameID={this.state.gameID}
           />
         </div>
         <br />
