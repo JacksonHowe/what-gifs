@@ -15,7 +15,8 @@ const server = new WebSocket.Server({ port: SERVER_PORT });
 
 const { v4: uuidv4 } = require("uuid");
 var games = new Map();
-var players = [];
+
+var players = new Map(); //Map of playerID -> player object
 var connections = [];
 var messages = [];
 let host = "";
@@ -62,7 +63,45 @@ server.on("connection", (socket, req) => {
         socket.send(JSON.stringify(o));
 
         break;
+      case "connect":
+        logger.info("New player initiated a connect");
+        logger.debug("Params: " + JSON.stringify(params));
+        if (games.has(params.gameID)) {
+          let player = new Player(
+            params.playerID,
+            params.name || "No-name",
+            socket
+          );
+          //Add player to players map
+          logger.info("New player: " + player.id);
+          players.set(player.id, player);
 
+          //Add player to the game state
+          games.get(params.gameID).addPlayer(player);
+          logger.info(
+            "Added new player; total [" +
+              games.get(params.gameID).players.length +
+              "] players"
+          );
+          //Send captions to player
+          player.send(objects.captions());
+          logger.info("Captions sent to player");
+          //Send player array to the Host
+          let p = { players: games.get(params.gameID).getPlayers() };
+          games.get(params.gameID).sendToHost(p);
+          logger.info("Players sent to host");
+        } else {
+          logger.info(
+            "CONNECT: No games matching code:[" +
+              (params.gameID || "") +
+              "] started yet"
+          );
+          socket.send(
+            JSON.stringify(objects.error(400, "Game does not exist"))
+          );
+          socket.close();
+        }
+        break;
       default:
         socket.send(JSON.stringify(objects.error()));
         break;
