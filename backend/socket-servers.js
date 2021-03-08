@@ -16,7 +16,6 @@ const server = new WebSocket.Server({ port: SERVER_PORT });
 const { v4: uuidv4 } = require("uuid");
 var games = new Map();
 
-var players = new Map(); //Map of playerID -> player object
 var connections = [];
 var messages = [];
 let host = "";
@@ -46,6 +45,7 @@ function getJsonFromUrl(url) {
 */
 server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
+  var players = new Map(); //Map of playerID -> player object
   let str = req.url;
   logger.debug(str);
   const params = getJsonFromUrl(str.substring(1));
@@ -54,14 +54,12 @@ server.on("connection", (socket, req) => {
   if (params && params.action) {
     switch (params.action) {
       case "startgame":
-        //Create game state obejcts
-
+        //Create game state object
         let o = objects.genGameUuid();
         let game = new Game(o.gameID, socket, params.theme || "default");
         logger.info("Created new game [" + o.gameID + "]");
         games.set(o.gameID, game);
         socket.send(JSON.stringify(o));
-
         break;
       case "connect":
         logger.info("New player initiated a connect");
@@ -104,6 +102,7 @@ server.on("connection", (socket, req) => {
         break;
       default:
         socket.send(JSON.stringify(objects.error()));
+        socket.close();
         break;
     }
   } else {
