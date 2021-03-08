@@ -15,8 +15,8 @@ function generateGameUuid() {
 }
 
 //Return Error Obj
-function returnError() {
-  var obj = { status: 400, msg: "Bad Request" };
+function returnError(s = 400, m = "Bad Request") {
+  var obj = { status: s, msg: m };
   return obj;
 }
 
