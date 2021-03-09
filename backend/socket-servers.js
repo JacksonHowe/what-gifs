@@ -45,10 +45,7 @@ function getJsonFromUrl(url) {
 */
 server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
-<<<<<<< Updated upstream
-=======
   var players = new Map(); //Map of sockets -> player objects
->>>>>>> Stashed changes
   let str = req.url;
   logger.debug(str);
   const params = getJsonFromUrl(str.substring(1));
