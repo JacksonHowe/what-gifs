@@ -16,7 +16,7 @@ const server = new WebSocket.Server({ port: SERVER_PORT });
 
 const { v4: uuidv4 } = require("uuid");
 var games = new Map();
-var players = [];
+
 var connections = [];
 var messages = [];
 let host = "";
@@ -46,7 +46,9 @@ function getJsonFromUrl(url) {
 */
 server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
+
   var players = new Map(); //Map of sockets -> player objects
+
   let str = req.url;
   logger.debug(str);
   const params = getJsonFromUrl(str.substring(1));
@@ -55,18 +57,55 @@ server.on("connection", (socket, req) => {
   if (params && params.action) {
     switch (params.action) {
       case "startgame":
-        //Create game state obejcts
-
+        //Create game state object
         let o = objects.genGameUuid();
         let game = new Game(o.gameID, socket, params.theme || "default");
         logger.info("Created new game [" + o.gameID + "]");
         games.set(o.gameID, game);
         socket.send(JSON.stringify(o));
-
         break;
+      case "connect":
+        logger.info("New player initiated a connect");
+        logger.debug("Params: " + JSON.stringify(params));
+        if (games.has(params.gameID)) {
+          let player = new Player(
+            params.playerID,
+            params.name || "No-name",
+            socket
+          );
+          //Add player to players map
+          logger.info("New player: " + player.id);
+          players.set(player.id, player);
 
+          //Add player to the game state
+          games.get(params.gameID).addPlayer(player);
+          logger.info(
+            "Added new player; total [" +
+              games.get(params.gameID).players.length +
+              "] players"
+          );
+          //Send captions to player
+          player.send(objects.captions());
+          logger.info("Captions sent to player");
+          //Send player array to the Host
+          let p = { players: games.get(params.gameID).getPlayers() };
+          games.get(params.gameID).sendToHost(p);
+          logger.info("Players sent to host");
+        } else {
+          logger.info(
+            "CONNECT: No games matching code:[" +
+              (params.gameID || "") +
+              "] started yet"
+          );
+          socket.send(
+            JSON.stringify(objects.error(400, "Game does not exist"))
+          );
+          socket.close();
+        }
+        break;
       default:
         socket.send(JSON.stringify(objects.error()));
+        socket.close();
         break;
     }
   } else {

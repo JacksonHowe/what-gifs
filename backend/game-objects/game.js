@@ -22,7 +22,13 @@ module.exports = function Game(gameID, conn, theme) {
       this.state.setJudge(this.players[this.nextJudge++]);
     }
   };
-
+  this.getPlayers = function() {
+    var arr = [];
+    for (var i = 0; i < this.players.length; i++) {
+      arr.push(this.players[i].getSelf());
+    }
+    return arr;
+  };
   this.addPlayer = function(newPlayer) {
     this.players.push(newPlayer);
   };

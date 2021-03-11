@@ -11,7 +11,7 @@ class ClientPlayer extends Component {
   constructor(props) {
     super(props);
   }
-
+  componentWillMount() {}
   componentDidUpdate() {
     console.log(this.state);
   }
@@ -26,6 +26,13 @@ class ClientPlayer extends Component {
       //Do host actions
       if (o.action === "startgame") {
         //onpen new host socket
+        //Create uuid for the player
+        let pid = uuidv4();
+
+        this.setState(prevState => ({
+          player: { ...prevState.player, playerID: pid }
+        }));
+
         this.createSocket(true, o);
       } else if (o.action === "newgame") {
         //Do new game request
@@ -57,7 +64,7 @@ class ClientPlayer extends Component {
       p =
         "?action=" +
         params.action +
-        "&playerIDe=" +
+        "&playerID=" +
         params.playerID +
         "&gameID=" +
         params.gameID;
@@ -91,6 +98,13 @@ class ClientPlayer extends Component {
 
     socket.onclose = () => {
       console.log("Disconnect");
+      this.setState(prevState =>
+        is_host
+          ? { host: { ...prevState.host, connected: false, socket: socket } }
+          : {
+              player: { ...prevState.player, connected: false, socket: socket }
+            }
+      );
     };
   }
 
