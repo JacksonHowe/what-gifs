@@ -3,6 +3,7 @@ const WebSocket = require("ws");
 const Game = require("./game-objects/game");
 const Player = require("./game-objects/player");
 const State = require("./game-objects/state");
+const { parse } = require("./router");
 const _ = require("lodash");
 const logger = require("./logger")(module);
 const url = require("url");
@@ -78,6 +79,7 @@ server.on("connection", (socket, req) => {
     socket.send(data); //Echo for now
     var obj = JSON.parse(data);
     //Call methods that invoke game logic
+    parse(obj.action, games.get(obj.gaemID));
   });
 
   //Do whatever cleanup needs to be done when a player client disconnects
