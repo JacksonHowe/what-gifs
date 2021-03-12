@@ -118,7 +118,7 @@ server.on("connection", (socket, req) => {
     socket.send(data); //Echo for now
     var obj = JSON.parse(data);
     //Call methods that invoke game logic
-    parse(obj.action, games.get(obj.gaemID));
+    parse(obj.action, games.get(obj.gameID));
   });
 
   //Do whatever cleanup needs to be done when a player client disconnects
