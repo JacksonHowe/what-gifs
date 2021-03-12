@@ -22,6 +22,7 @@ module.exports = function Game(gameID, conn, theme) {
       this.state.setJudge(this.players[this.nextJudge++]);
     }
   };
+
   this.getPlayers = function() {
     var arr = [];
     for (var i = 0; i < this.players.length; i++) {
@@ -29,6 +30,7 @@ module.exports = function Game(gameID, conn, theme) {
     }
     return arr;
   };
+
   this.addPlayer = function(newPlayer) {
     this.players.push(newPlayer);
   };
@@ -62,4 +64,12 @@ module.exports = function Game(gameID, conn, theme) {
   this.setId = function(id) {
     this.id = id;
   };
+
+  this.getTheme = function() {
+    return this.state.getTheme();
+  };
+
+  this.setGif = function(url) {
+    this.state.setGif(url);
+  }
 };

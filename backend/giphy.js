@@ -54,6 +54,7 @@ async function giphySearch(term, offset = 0) {
 // Kind of works like a search term, but searches by tag instead
 // of by category
 // The random endpoint only returns one result.
+// This function is currently unused.
 async function getRandom(tag = '') {
     logger.info(`Starting RANDOM request`);
     try {
@@ -65,6 +66,14 @@ async function getRandom(tag = '') {
     }
 }
 
-exports.trending = getTrending;
-exports.search = giphySearch;
-exports.random = getRandom;
+module.exports = async function getGif(game) {
+    let result;
+    if (game.getTheme() !== "default") {
+        result = await giphySearch(game.getTheme());
+        logger.info(`getGif SEARCH result: ${result}`);
+    } else {
+        result = await getTrending();
+        logger.info(`getGif TRENDING result: ${result}`);
+    }
+    return result;
+}
