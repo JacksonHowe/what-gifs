@@ -34,8 +34,8 @@ class APIList extends Component {
     const obj = {
       type: "player",
       action: "connect",
-      playerID: this.props.playerID,
-      gameID: this.props.gameID,
+      playerID: this.props.playerID || "",
+      gameID: this.props.gameID || "",
       name: "<insert name>"
     };
     this.setRequest(obj);
@@ -45,8 +45,8 @@ class APIList extends Component {
     const obj = {
       type: "player",
       action: "getgif",
-      playerID: this.props.playerID,
-      gameID: this.props.gameID
+      playerID: this.props.playerID || "",
+      gameID: this.props.gameID || ""
     };
     this.setRequest(obj);
   }
@@ -56,7 +56,7 @@ class APIList extends Component {
       type: "player",
       action: "choosewinnner",
       winningSubmission: "<Submission>",
-      gameID: this.props.gameID
+      gameID: this.props.gameID || ""
     };
     this.setRequest(obj);
   }
@@ -66,7 +66,7 @@ class APIList extends Component {
       type: "player",
       action: "eliminatecaption",
       submission: "<Submission>",
-      gameID: this.props.gameID
+      gameID: this.props.gameID || ""
     };
     this.setRequest(obj);
   }
