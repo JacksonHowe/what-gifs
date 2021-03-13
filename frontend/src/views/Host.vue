@@ -1,7 +1,10 @@
 <template>
   <v-container>
     <v-row class="text-center">
-      <v-col cols="12">
+      <v-col
+        v-if="gameID !== -1"
+        cols="12"
+      >
         <h3>Game ID: {{ gameID }}</h3>
       </v-col>
       <v-col cols="12">
