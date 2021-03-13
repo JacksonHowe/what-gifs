@@ -71,20 +71,66 @@
   export default {
     name: 'Game',
 
+    created () {
+      this.connection = new WebSocket(`ws://localhost:8080?action=connect&gameID=${this.gameID}&name=${this.name}`)
+
+      this.connection.onopen = event => {
+        console.log(event)
+        console.log('Successfully connected to server')
+      }
+      
+      this.connection.onmessage = event => {
+        this.onMessage(JSON.parse(event.data))
+      }
+    },
+
+    destroyed () {
+      this.connection.close()
+    },
+
     data () {
       return {
+        connection: null,
+        name: 'Player Name',
+        playerID: 123,
+        gameID: 'WDTY',
         judge: false,
         captions: ['Caption 1', 'Caption 2', 'Caption 3', 'Caption 4', 'Caption 5'],
+        caption: 'New Caption',
         selectedIndex: -1
       }
     },
+
+    watch: {
+      caption (val) {
+        this.captions.append(val)
+      }
+    },
+
     methods: {
       submitCaption () {
         const data = {
-          name: "Player Name",
+          action: 'submitcaption',
+          playerID: this.playerID,
           caption: this.captions[this.selectedIndex]
         }
+        this.captions.splice(this.selectedIndex, 1)
+        this.selectedIndex = -1
         console.log(data)
+        this.sendMessage(JSON.stringify(data))
+      },
+
+      sendMessage (message) {
+        this.connection.send(JSON.stringify(message))
+      },
+
+      onMessage (message) {
+        console.log(message)
+        if (typeof message === 'object' && message !== null) {
+          for (const prop in message) {
+            this[prop] = message[prop]
+          }
+        }
       }
     }
   }
