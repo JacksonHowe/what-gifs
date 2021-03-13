@@ -46,7 +46,9 @@ function getJsonFromUrl(url) {
 */
 server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
+
   var players = new Map(); //Map of sockets -> player objects
+
   let str = req.url;
   logger.debug(str);
   const params = getJsonFromUrl(str.substring(1));
@@ -116,7 +118,7 @@ server.on("connection", (socket, req) => {
     socket.send(data); //Echo for now
     var obj = JSON.parse(data);
     //Call methods that invoke game logic
-    parse(obj.action, games.get(obj.gaemID));
+    parse(obj.action, games.get(obj.gameID));
   });
 
   //Do whatever cleanup needs to be done when a player client disconnects
