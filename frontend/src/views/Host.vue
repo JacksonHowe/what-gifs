@@ -1,11 +1,28 @@
 <template>
-  <v-container>
-    <v-row class="text-center">
-      <v-col
-        v-if="gameID !== -1"
-        cols="12"
-      >
+  <v-container fill-height>
+    <v-row
+      v-if="gameID === -1"
+      class="text-center"
+    >
+      <v-col cols="12">
+        <v-text-field
+          label="Theme (Optional)"
+          v-model="theme"
+        />
+        <v-btn
+          @click="startGame"
+        >
+          Start
+        </v-btn>     
+      </v-col>
+    </v-row>
+    <v-row
+      v-else
+      class="text-center"
+    >
+      <v-col cols="12">
         <h3>Game ID: {{ gameID }}</h3>
+        <h3 v-if="theme">Theme: {{ theme }}</h3>
       </v-col>
       <v-col cols="12">
         <v-simple-table dense>
@@ -59,27 +76,17 @@
 
   export default {
     name: 'Host',
-    
-    created () {
-      this.connection = new WebSocket('ws://localhost:8080?action=startgame')
-
-      this.connection.onopen = event => {
-        console.log(event)
-        console.log('Successfully connected to server')
-      }
-      
-      this.connection.onmessage = event => {
-        this.onMessage(JSON.parse(event.data))
-      }
-    },
 
     destroyed () {
-      this.connection.close()
+      if (this.connection) {
+        this.connection.close()
+      }
     },
 
     data () {
       return {
         connection: null,
+        theme: '',
         gameID: -1,
         judge: 3,
         gifUrl: 'https://media.giphy.com/media/10LKovKon8DENq/source.gif',
@@ -113,6 +120,19 @@
     },
 
     methods: {
+      startGame () {
+        this.connection = new WebSocket(`ws://localhost:8080?action=startgame${this.theme ? '&theme=' + this.theme : ''}`)
+
+        this.connection.onopen = event => {
+          console.log(event)
+          console.log('Successfully connected to server')
+        }
+        
+        this.connection.onmessage = event => {
+          this.onMessage(JSON.parse(event.data))
+        }
+      },
+
       sendMessage (message) {
         this.connection.send(JSON.stringify(message))
       },
