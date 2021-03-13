@@ -47,6 +47,10 @@ module.exports = function Game(gameID, conn, theme) {
     this.state = new State(theme);
   };
 
+  this.getState = function() {
+    return this.state;
+  }
+
   this.sendAllPlayers = function(object) {
     for (var i = 0; i < players.length; i++) {
       this.players[i].send(object);
