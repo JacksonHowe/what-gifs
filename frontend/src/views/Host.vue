@@ -1,6 +1,29 @@
 <template>
-  <v-container>
-    <v-row class="text-center">
+  <v-container fill-height>
+    <v-row
+      v-if="gameID === -1"
+      class="text-center"
+    >
+      <v-col cols="12">
+        <v-text-field
+          label="Theme (Optional)"
+          v-model="theme"
+        />
+        <v-btn
+          @click="startGame"
+        >
+          Start
+        </v-btn>     
+      </v-col>
+    </v-row>
+    <v-row
+      v-else
+      class="text-center"
+    >
+      <v-col cols="12">
+        <h3>Game ID: {{ gameID }}</h3>
+        <h3 v-if="theme">Theme: {{ theme }}</h3>
+      </v-col>
       <v-col cols="12">
         <v-simple-table dense>
           <template>
@@ -11,67 +34,117 @@
             </thead>
             <tbody>
               <tr
-                v-for="player in players"
+                v-for="player, i in players"
                 :key="player.uuid"
               >
                 <td>{{ player.name }}</td>
-                <td>{{ player.score }}</td>
+                <td>{{ scores[i] }}</td>
               </tr>
             </tbody>
           </template>
         </v-simple-table>
       </v-col>
 
-      <v-col cols="12">
+      <v-col
+        cols="12"
+        align="center"
+      >
         <v-img
           max-height="500"
           max-width="400"
-          src="https://media.giphy.com/media/10LKovKon8DENq/source.gif"
+          :src="gifUrl"
         />
       </v-col>
 
       <v-col cols="12">
         <h2>Judge: {{ players[judge].name }}</h2>
       </v-col>
+      <v-col cols="12">
+        <v-list-item
+          v-for="submission in submissions"
+          :key="submission"
+          style="display: block"
+        >
+          {{ submission }}
+        </v-list-item>
+      </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
+
   export default {
     name: 'Host',
 
+    destroyed () {
+      if (this.connection) {
+        this.connection.close()
+      }
+    },
+
     data () {
       return {
+        connection: null,
+        theme: '',
+        gameID: -1,
         judge: 3,
+        gifUrl: 'https://media.giphy.com/media/10LKovKon8DENq/source.gif',
         players: [
           {
             uuid: 1,
-            name: "Player 1",
-            score: 2
+            name: 'Player 1',
           },
           {
             uuid: 2,
-            name: "Player 2",
-            score: 1
+            name: 'Player 2',
           },
           {
             uuid: 3,
-            name: "Player 3",
-            score: 1
+            name: 'Player 3',
           },
           {
             uuid: 4,
-            name: "Player 4",
-            score: 0
+            name: 'Player 4',
           },
           {
             uuid: 5,
-            name: "Player 5",
-            score: 3
+            name: 'Player 5',
           }
-        ]
+        ],
+        submissions: ['Caption 1', 'Caption 2', 'Caption 3', 'Caption 4'],
+        scores: [2, 1, 1, 0, 3],
+        winner: -1,
+        winningSubmission: 'Winner winner chicken dinner'
       }
     },
+
+    methods: {
+      startGame () {
+        this.connection = new WebSocket(`ws://localhost:8080?action=startgame${this.theme ? '&theme=' + this.theme : ''}`)
+
+        this.connection.onopen = event => {
+          console.log(event)
+          console.log('Successfully connected to server')
+        }
+        
+        this.connection.onmessage = event => {
+          this.onMessage(JSON.parse(event.data))
+        }
+      },
+
+      sendMessage (message) {
+        this.connection.send(JSON.stringify(message))
+      },
+
+      onMessage (message) {
+        console.log(message)
+        if (typeof message === 'object' && message !== null) {
+          for (const prop in message) {
+            this[prop] = message[prop]
+          }
+        }
+      }
+    }
   }
 </script>
