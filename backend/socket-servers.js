@@ -119,18 +119,17 @@ server.on("connection", (socket, req) => {
     var obj = JSON.parse(data);
     if (!obj.action) {
       logger.info(`No action provided: ${data}`);
-      socket.send(
-        JSON.stringify(objects.error(400, "Missing action"))
-      );
+      socket.send(JSON.stringify(objects.error(400, "Missing action")));
     } else if (!obj.gameID || !games.has(obj.gameID)) {
       logger.info(`No game ID provided or game does not exist: ${data}`);
       socket.send(
-        JSON.stringify(objects.error(400, "Game ID missing or game does not exist"))
+        JSON.stringify(
+          objects.error(400, "Game ID missing or game does not exist")
+        )
       );
-      socket.close();
     } else {
       // Call methods that invoke game logic
-      parse(obj.action, games.get(obj.gameID));
+      parse(obj, games.get(obj.gameID));
     }
   });
 
