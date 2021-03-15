@@ -113,10 +113,22 @@ server.on("connection", (socket, req) => {
   //Do this stuff when a player sends in a message
   socket.on("message", data => {
     logger.debug(data);
-    socket.send(data); //Echo for now
+    // socket.send(data); //Echo for now
     var obj = JSON.parse(data);
-    //Call methods that invoke game logic
-    parse(obj.action, games.get(obj.gaemID));
+    if (!obj.action) {
+      logger.info(`No action provided: ${data}`);
+      socket.send(JSON.stringify(objects.error(400, "Missing action")));
+    } else if (!obj.gameID || !games.has(obj.gameID)) {
+      logger.info(`No game ID provided or game does not exist: ${data}`);
+      socket.send(
+        JSON.stringify(
+          objects.error(400, "Game ID missing or game does not exist")
+        )
+      );
+    } else {
+      // Call methods that invoke game logic
+      parse(obj, games.get(obj.gameID));
+    }
   });
 
   //Do whatever cleanup needs to be done when a player client disconnects

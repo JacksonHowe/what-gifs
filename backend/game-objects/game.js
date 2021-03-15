@@ -30,6 +30,9 @@ module.exports = function Game(gameID, conn, theme) {
     return arr;
   };
   this.addPlayer = function(newPlayer) {
+    if (this.players.length === 1) {
+      this.getJudge();
+    }
     this.players.push(newPlayer);
   };
 
@@ -43,6 +46,10 @@ module.exports = function Game(gameID, conn, theme) {
 
   this.setState = function(theme) {
     this.state = new State(theme);
+  };
+
+  this.getState = function() {
+    return this.state;
   };
 
   this.sendAllPlayers = function(object) {
@@ -61,5 +68,13 @@ module.exports = function Game(gameID, conn, theme) {
 
   this.setId = function(id) {
     this.id = id;
+  };
+
+  this.getTheme = function() {
+    return this.state.getTheme();
+  };
+
+  this.setGif = function(url) {
+    this.state.setGif(url);
   };
 };
