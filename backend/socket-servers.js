@@ -46,7 +46,9 @@ function getJsonFromUrl(url) {
 */
 server.on("connection", (socket, req) => {
   //Do this stuff when a player connects to the server
+
   var players = new Map(); //Map of sockets -> player objects
+
   let str = req.url;
   logger.debug(str);
   const params = getJsonFromUrl(str.substring(1));
