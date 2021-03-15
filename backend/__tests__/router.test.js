@@ -29,9 +29,9 @@ describe("Test suite for router object", () => {
       setGif(url) {
         this.state.gif = url;
       },
-      sendToHost(_) { }
+      sendToHost(_) {}
     };
-    const method = "getgif";
+    const method = { action: "getgif" };
     let r = await parse(method, game);
     expect(r.status).toBe(200);
     expect(game.getState().gifOffset).toBe(1);
@@ -58,12 +58,51 @@ describe("Test suite for router object", () => {
       setGif(url) {
         this.state.gif = url;
       },
-      sendToHost(_) { }
+      sendToHost(_) {}
     };
-    const method = "getgif";
+    const method = { action: "getgif" };
     let r = await parse(method, game);
     expect(r.status).toBe(200);
     expect(game.getState().gifOffset).toBe(1);
     expect(game.getState().gif).toBe(searchURL);
+  });
+
+  test("Submit a caption", async () => {
+    // Set up other test data and run the test
+    const game = {
+      state: {
+        submissions: [],
+        clearSubmissions() {}, //Don't clear so we can see if it was added
+        addSubmission(newSub) {
+          this.submissions.push(newSub);
+        }
+      },
+      captions: {
+        getCaption() {
+          return "A fake new caption";
+        }
+      },
+      players: [{ id: "123456", send(_) {} }],
+      getTheme() {
+        return "default";
+      },
+      getState() {
+        return this.state;
+      },
+      setGif(url) {
+        this.state.gif = url;
+      },
+      sendToHost(_) {},
+      sendToJudge(_) {}
+    };
+    const object = {
+      action: "submitcaption",
+      caption: "Fake caption",
+      playerID: "123456",
+      gameID: "XXXX"
+    };
+    let r = await parse(object, game);
+    expect(r.status).toBe(200);
+    expect(game.getState().submissions.length).toBe(1);
   });
 });
