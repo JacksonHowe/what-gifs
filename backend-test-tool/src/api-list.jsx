@@ -18,9 +18,10 @@ class APIList extends Component {
   submitCaption(e) {
     const obj = {
       type: "player",
-      action: "submitCaption",
+      action: "submitcaption",
       caption: "<String here>",
-      playerID: this.props.playerID
+      playerID: this.props.playerID,
+      gameID: this.props.gameID || ""
     };
     this.setRequest(obj);
   }

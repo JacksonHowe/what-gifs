@@ -56,7 +56,6 @@ describe("Testing the game object", () => {
         let p2 = new Player(ID2, NAME2, {});
         game.addPlayer(p1);
         game.addPlayer(p2);
-        game.getJudge();
         expect(game.state.judge).toBeDefined();
         expect(game.state.judge).toEqual(p1);
         game.getJudge();

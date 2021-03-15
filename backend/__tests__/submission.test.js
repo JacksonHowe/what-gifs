@@ -6,7 +6,7 @@ const CAPTION =
 describe("Test the submission object", () => {
   test("Does thet object properly", () => {
     let object = new Submission(ID, CAPTION);
-    expect(object.playerId).toEqual(ID);
+    expect(object.playerID).toEqual(ID);
     expect(object.caption).toEqual(CAPTION);
   });
 });
