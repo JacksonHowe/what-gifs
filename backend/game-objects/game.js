@@ -55,7 +55,7 @@ module.exports = function Game(gameID, conn, theme) {
   };
 
   this.sendAllPlayers = function(object) {
-    for (var i = 0; i < players.length; i++) {
+    for (var i = 0; i < this.players.length; i++) {
       this.players[i].send(object);
     }
   };
