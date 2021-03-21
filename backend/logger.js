@@ -2,7 +2,7 @@ const path = require("path");
 const { createLogger, format, transports } = require("winston");
 const { colorize, combine, timestamp, label, printf } = format;
 
-const log_level = "notice";
+const log_level = "info"; // TODO: Change to less aggressive log level after development
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
   return `${timestamp} [${label}] ${level}: ${message}`;
