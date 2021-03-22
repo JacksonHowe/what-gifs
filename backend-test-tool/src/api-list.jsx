@@ -41,6 +41,13 @@ class APIList extends Component {
     };
     this.setRequest(obj);
   }
+  playersReady(e) {
+    const obj = {
+      action: "playersready",
+      gameID: this.props.gameID || ""
+    };
+    this.setRequest(obj);
+  }
 
   getGif(e) {
     const obj = {
@@ -110,6 +117,11 @@ class APIList extends Component {
         </li>
         <li>
           <button onClick={e => this.connect(e)}>action: connect</button>
+        </li>
+        <li>
+          <button onClick={e => this.playersReady(e)}>
+            action: playersready
+          </button>
         </li>
         <li>
           <button onClick={e => this.getGif(e)}>action: getgif</button>
