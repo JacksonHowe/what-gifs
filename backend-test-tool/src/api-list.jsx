@@ -43,6 +43,7 @@ class APIList extends Component {
   }
   playersReady(e) {
     const obj = {
+      type: "host",
       action: "playersready",
       gameID: this.props.gameID || ""
     };
