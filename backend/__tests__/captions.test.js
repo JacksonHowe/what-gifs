@@ -1,5 +1,5 @@
 const Captions = require("../game-objects/captions");
-const randIDObj = require("../custom-objects");
+
 var object = "";
 describe("Verify the Captions objects", () => {
   beforeEach(() => {
@@ -20,21 +20,6 @@ describe("Verify the Captions objects", () => {
     expect(arr1).not.toEqual(arr2);
   });
 
-  test("Tests that Game ID's are random", () => {
-    let randIdOne = randIDObj.genGameUuid();
-    let randIdTwo = randIDObj.genGameUuid();
-    let randIdThree = randIDObj.genGameUuid();
-    expect(randIdOne).not.toEqual(randIdTwo);
-    expect(randIdOne).not.toEqual(randIdThree);
-    expect(randIdTwo).not.toEqual(randIdThree);
-  });
-
-  test("Test that game ID's are of length 4", () => {
-    const randLength = 4;
-    let randIdOne = randIDObj.genGameUuid();
-    expect(randIdOne).toHaveLength(randLength);
-  });
-
   test("Test corner cases", () => {
     let length = object.contents.length;
     expect(length).toEqual(object.contents.length);
@@ -50,10 +35,3 @@ describe("Verify the Captions objects", () => {
     }
   });
 });
-
-
-
-
-
-
-

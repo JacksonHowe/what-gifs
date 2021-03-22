@@ -59,10 +59,9 @@ server.on("connection", (socket, req) => {
       case "startgame":
         //Create game state object
         let o = objects.genGameUuid();
-        let gameID = o.genGameUuid;
-        let game = new Game(gameID, socket, params.theme || "default");
-        logger.info("Created new game [" + gameID + "]");
-        games.set(gameID, game);
+        let game = new Game(o.gameID, socket, params.theme || "default");
+        logger.info("Created new game [" + o.gameID + "]");
+        games.set(o.gameID, game);
         socket.send(JSON.stringify(o));
         break;
       case "connect":

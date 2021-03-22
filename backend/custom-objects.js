@@ -8,11 +8,14 @@
 
 //Generate a game ID
 function generateGameUuid() {
-  var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
   var stringLen = 4;
-  var result = '';
-  for (var i = stringLen; i > 0; --i) result += chars[Math.round(Math.random() * (chars.length - 1))];
-  return result;
+  var result = "";
+  for (var i = stringLen; i > 0; --i)
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
+
+  var obj = { gameID: result };
+  return obj;
 }
 
 //Return Error Obj
