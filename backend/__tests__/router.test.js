@@ -120,7 +120,33 @@ describe("Test suite for router object", () => {
     };
     const r = await parse(payload, game);
     expect(r.status).toBe(200);
-    expect(sendToHostMock).toHaveBeenCalledWith({playState: 'awaitingSubmissions'});
-    expect(sendAllPlayersMock).toHaveBeenCalledWith({playState: 'awaitingSubmissions'});
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      playState: "awaitingSubmissions"
+    });
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "awaitingSubmissions"
+    });
+  });
+
+  test("PlayersReady state action sends playState update to host and judge", async () => {
+    const sendToHostMock = jest.fn();
+    const sendToJudgeMock = jest.fn();
+    const getJudgeMock = jest.fn();
+    const game = {
+      sendToHost: sendToHostMock,
+      sendToJudge: sendToJudgeMock,
+      getJudge: getJudgeMock
+    };
+    const payload = {
+      action: "playersready",
+      gameID: "XYZZ"
+    };
+    const response = await parse(payload, game);
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      playState: "awaitingGifSelection"
+    });
+    expect(getJudgeMock).toHaveBeenCalled();
+    expect(sendToJudgeMock).toHaveBeenCalledWith({ playState: "judge" });
   });
 });

@@ -11,6 +11,14 @@ const getPlayerById = (players, id) => {
   }
 };
 
+const playersReady = (request, game) => {
+  //Send awaitGifSelection state to Host
+  game.sendToHost({ playState: PlayState.Host.awaitingGifSelection });
+  //Select a judge and send that state to judge
+  game.getJudge();
+  game.sendToJudge({ playState: PlayState.Player.judge });
+};
+
 const recordSubmission = (request, game) => {
   var submission = new Submission(request.playerID, request.caption);
   logger.debug(`Submission to add ${JSON.stringify(submission)}`);
@@ -72,6 +80,9 @@ const parse = async (request, game) => {
     case "replacecaption":
       logger.info("Player requested new caption");
       replaceCaption(request, game);
+      break;
+    case "playersready":
+      playersReady(request, game);
       break;
     default:
       ret.status = 400;
