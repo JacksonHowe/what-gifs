@@ -38,8 +38,11 @@ class ClientPlayer extends Component {
         //Do new game request
         console.log("newgame");
         this.send(o, this.state.host.socket);
+      } else if (o.action === "playersready") {
+        this.send(o, this.state.host.socket);
       } else {
-        alert("You're sending a bad request, check again");
+        alert("Does the host send that action?");
+        //Host doesn't have other actions as of yet
       }
     } else if (o.type === "player") {
       //do player stuff
