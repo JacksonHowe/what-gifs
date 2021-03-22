@@ -105,4 +105,48 @@ describe("Test suite for router object", () => {
     expect(r.status).toBe(200);
     expect(game.getState().submissions.length).toBe(1);
   });
+
+  test("setgif action sends playState update messages to host and all players", async () => {
+    const sendToHostMock = jest.fn();
+    const sendAllPlayersMock = jest.fn();
+    const game = {
+      sendToHost: sendToHostMock,
+      sendAllPlayers: sendAllPlayersMock
+    };
+    const payload = {
+      action: "setgif",
+      playerID: "123456",
+      gameID: "XXXX"
+    };
+    const r = await parse(payload, game);
+    expect(r.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      playState: "awaitingSubmissions"
+    });
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "awaitingSubmissions"
+    });
+  });
+
+  test("PlayersReady state action sends playState update to host and judge", async () => {
+    const sendToHostMock = jest.fn();
+    const sendToJudgeMock = jest.fn();
+    const getJudgeMock = jest.fn();
+    const game = {
+      sendToHost: sendToHostMock,
+      sendToJudge: sendToJudgeMock,
+      getJudge: getJudgeMock
+    };
+    const payload = {
+      action: "playersready",
+      gameID: "XYZZ"
+    };
+    const response = await parse(payload, game);
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      playState: "awaitingGifSelection"
+    });
+    expect(getJudgeMock).toHaveBeenCalled();
+    expect(sendToJudgeMock).toHaveBeenCalledWith({ playState: "judge" });
+  });
 });

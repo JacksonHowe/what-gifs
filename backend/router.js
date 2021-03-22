@@ -1,6 +1,7 @@
 const getGif = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
+const PlayState = require("./game-objects/play-state");
 
 const getPlayerById = (players, id) => {
   for (var i = 0; i < players.length; i++) {
@@ -8,6 +9,14 @@ const getPlayerById = (players, id) => {
       return players[i];
     }
   }
+};
+
+const playersReady = (request, game) => {
+  //Send awaitGifSelection state to Host
+  game.sendToHost({ playState: PlayState.Host.awaitingGifSelection });
+  //Select a judge and send that state to judge
+  game.getJudge();
+  game.sendToJudge({ playState: PlayState.Player.judge });
 };
 
 const recordSubmission = (request, game) => {
@@ -35,6 +44,13 @@ const replaceCaption = (request, game) => {
   player.send({ caption: new_caption });
 };
 
+const setGif = (request, game) => {
+  // Don't need to save any info about finalizing the gif, just send a message to
+  // the host and players saying its time to start submitting captions
+  game.sendToHost({ playState: PlayState.Host.awaitingSubmissions });
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions });
+};
+
 const parse = async (request, game) => {
   var ret = { status: 200 };
   switch (request.action) {
@@ -43,6 +59,10 @@ const parse = async (request, game) => {
       const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
       game.setGif(gifUrl);
       game.sendToHost({ gifUrl });
+      break;
+    case "setgif":
+      logger.info("Gif is confirmed");
+      setGif(request, game);
       break;
     case "submitcaption":
       logger.info("Player submitting caption");
@@ -60,6 +80,9 @@ const parse = async (request, game) => {
     case "replacecaption":
       logger.info("Player requested new caption");
       replaceCaption(request, game);
+      break;
+    case "playersready":
+      playersReady(request, game);
       break;
     default:
       ret.status = 400;
