@@ -31,7 +31,7 @@ function getJsonFromUrl(url) {
   if (url) {
     var query = url.substr(1);
     var result = {};
-    query.split("&").forEach(function(part) {
+    query.split("&").forEach(function (part) {
       var item = part.split("=");
       result[item[0]] = decodeURIComponent(item[1]);
     });
@@ -59,9 +59,10 @@ server.on("connection", (socket, req) => {
       case "startgame":
         //Create game state object
         let o = objects.genGameUuid();
-        let game = new Game(o.gameID, socket, params.theme || "default");
-        logger.info("Created new game [" + o.gameID + "]");
-        games.set(o.gameID, game);
+        let gameID = o.genGameUuid;
+        let game = new Game(gameID, socket, params.theme || "default");
+        logger.info("Created new game [" + gameID + "]");
+        games.set(gameID, game);
         socket.send(JSON.stringify(o));
         break;
       case "connect":
