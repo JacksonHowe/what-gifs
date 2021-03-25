@@ -75,6 +75,9 @@ module.exports = function Game(gameID, conn, theme) {
   this.getTheme = function() {
     return this.state.getTheme();
   };
+  this.setTheme = function(t) {
+    this.state.setTheme(t);
+  };
 
   this.setGif = function(url) {
     this.state.setGif(url);
