@@ -76,6 +76,18 @@ const parse = async (request, game) => {
       break;
     case "newgame":
       logger.info("New game initiated");
+      //Update theme string if provided
+      if (request.theme) {
+        game.setTheme(request.theme);
+      }
+      //Send players list to Host
+      game.sendToHost({ players: game.getPlayers() });
+      //Send 5 captions to each player
+      for (var i = 0; i < game.players.length; i++) {
+        var hand = game.dealFirstHand();
+        game.players[i].send(hand);
+      }
+
       break;
     case "replacecaption":
       logger.info("Player requested new caption");

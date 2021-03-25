@@ -149,4 +149,63 @@ describe("Test suite for router object", () => {
     expect(getJudgeMock).toHaveBeenCalled();
     expect(sendToJudgeMock).toHaveBeenCalledWith({ playState: "judge" });
   });
+
+  test("newgame action with theme", async () => {
+    const setThemeMock = jest.fn();
+    const sendToHostMock = jest.fn();
+    const dealFirstHandMock = jest.fn();
+    const sendMock = jest.fn();
+    const getPlayersMock = jest.fn();
+    const game = {
+      players: [
+        { id: 1, name: "mary", send: sendMock },
+        { id: 2, name: "alice", send: sendMock },
+        { id: 3, name: "bob", send: sendMock }
+      ],
+      sendToHost: sendToHostMock,
+      dealFirstHand: dealFirstHandMock,
+      setTheme: setThemeMock,
+      getPlayers: getPlayersMock
+    };
+    const payload = {
+      action: "newgame",
+      theme: "sports"
+    };
+    const response = await parse(payload, game);
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledTimes(1);
+    expect(getPlayersMock).toHaveBeenCalledTimes(1);
+    expect(setThemeMock).toHaveBeenCalledWith(payload.theme);
+    expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
+    expect(sendMock).toHaveBeenCalledTimes(game.players.length);
+  });
+
+  test("newgame action without theme", async () => {
+    const setThemeMock = jest.fn();
+    const sendToHostMock = jest.fn();
+    const dealFirstHandMock = jest.fn();
+    const sendMock = jest.fn();
+    const getPlayersMock = jest.fn();
+    const game = {
+      players: [
+        { id: 1, name: "mary", send: sendMock },
+        { id: 2, name: "alice", send: sendMock },
+        { id: 3, name: "bob", send: sendMock }
+      ],
+      sendToHost: sendToHostMock,
+      dealFirstHand: dealFirstHandMock,
+      setTheme: setThemeMock,
+      getPlayers: getPlayersMock
+    };
+    const payload = {
+      action: "newgame"
+    };
+    const response = await parse(payload, game);
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledTimes(1);
+    expect(getPlayersMock).toHaveBeenCalledTimes(1);
+    expect(setThemeMock).toHaveBeenCalledTimes(0);
+    expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
+    expect(sendMock).toHaveBeenCalledTimes(game.players.length);
+  });
 });

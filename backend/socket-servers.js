@@ -31,7 +31,7 @@ function getJsonFromUrl(url) {
   if (url) {
     var query = url.substr(1);
     var result = {};
-    query.split("&").forEach(function(part) {
+    query.split("&").forEach(function (part) {
       var item = part.split("=");
       result[item[0]] = decodeURIComponent(item[1]);
     });
