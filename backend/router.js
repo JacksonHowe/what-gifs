@@ -51,6 +51,13 @@ const setGif = (request, game) => {
   game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions })
 };
 
+const eliminateCaption = (request, game) => {
+  // Remove all submissions from game state with the requested caption
+  game.state.removeSubmission(request.submission);
+  // Now send the updated list to the host
+  game.sendToHost({ submissions: game.state.submissions });
+};
+
 const parse = async (request, game) => {
   var ret = { status: 200 };
   switch (request.action) {
@@ -73,6 +80,7 @@ const parse = async (request, game) => {
       break;
     case "eliminatecaption":
       logger.info("Caption eliminated");
+      eliminateCaption(request, game);
       break;
     case "newgame":
       logger.info("New game initiated");
