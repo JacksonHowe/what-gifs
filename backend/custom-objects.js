@@ -8,9 +8,13 @@
 
 //Generate a game ID
 function generateGameUuid() {
-  //TODO make this id random
-  var id = "WDTY";
-  var obj = { gameID: id };
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+  var stringLen = 4;
+  var result = "";
+  for (var i = stringLen; i > 0; --i)
+    result += chars[Math.round(Math.random() * (chars.length - 1))];
+
+  var obj = { gameID: result };
   return obj;
 }
 

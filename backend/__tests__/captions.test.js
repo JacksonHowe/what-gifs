@@ -1,9 +1,11 @@
 const Captions = require("../game-objects/captions");
+
 var object = "";
 describe("Verify the Captions objects", () => {
   beforeEach(() => {
     object = new Captions("./__tests__/test-captions.txt");
   });
+
   test("Read test file and verify it has everything it needs", () => {
     expect(object.contents).toBeDefined();
     expect(object.contents.length).toBeGreaterThan(0);
