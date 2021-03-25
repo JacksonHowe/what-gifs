@@ -1,5 +1,7 @@
 const { parse } = require("../router");
 const giphy = require("@giphy/js-fetch-api");
+const State = require("../game-objects/state");
+const Submission = require("../game-objects/submission");
 
 describe("Test suite for router object", () => {
   test("Parse a empty action and game object", async () => {
@@ -207,5 +209,31 @@ describe("Test suite for router object", () => {
     expect(setThemeMock).toHaveBeenCalledTimes(0);
     expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
     expect(sendMock).toHaveBeenCalledTimes(game.players.length);
+  });
+
+  test("eliminatecaption action sends updated submissions to host", async () => {
+    const sendToHostMock = jest.fn();
+    const state = new State('default');
+    state.addSubmission(new Submission('1', 'A'));
+    state.addSubmission(new Submission('2', 'B'));
+    const game = {
+      sendToHost: sendToHostMock,
+      state
+    };
+    const payload = {
+      action: "eliminatecaption",
+      submission: "B",
+      gameID: "XXXX"
+    };
+    const r = await parse(payload, game);
+    expect(r.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      submissions: [
+        {
+          playerID: "1",
+          caption: "A"
+        }
+      ]
+    });
   });
 });
