@@ -28,6 +28,12 @@ module.exports = function State(theme) {
     this.submissions = [];
   };
 
+  this.removeSubmission = function(c) {
+    this.submissions = this.submissions.filter(function (submission) {
+      return submission.caption !== c;
+    })
+  }
+
   this.setJudge = function(player) {
     this.judge = player;
   };

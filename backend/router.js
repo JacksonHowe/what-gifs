@@ -2,6 +2,7 @@ const getGif = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
+const player = require("./game-objects/player");
 
 const getPlayerById = (players, id) => {
   for (var i = 0; i < players.length; i++) {
@@ -38,6 +39,26 @@ const recordSubmission = (request, game) => {
   replaceCaption(request, game);
 };
 
+const chooseWinner = (request, game) => {
+  // Update score of winner and prepare scores to be sent to host
+  let scores = {};
+  for (let player of game.players) {
+    if (player.id == request.winningSubmission.playerID) {
+      player.incScore();
+    }
+    scores[player.id] = player.score;
+  }
+  // Send new round play state, winning submission, and scores to host
+  game.sendToHost({
+    playState: PlayState.Host.awaitingGifSelection,
+    winningSubmission: request.winningSubmission,
+    scores
+  });
+  // Choose new judge and let them know they need to choose a GIF
+  game.getJudge();
+  game.sendToJudge({ playState: PlayState.Player.judge });
+};
+
 const replaceCaption = (request, game) => {
   var player = getPlayerById(game.players, request.playerID);
   const new_caption = game.captions.getCaption();
@@ -49,6 +70,13 @@ const setGif = (request, game) => {
   // the host and players saying its time to start submitting captions
   game.sendToHost({ playState: PlayState.Host.awaitingSubmissions });
   game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions });
+};
+
+const eliminateCaption = (request, game) => {
+  // Remove all submissions from game state with the requested caption
+  game.state.removeSubmission(request.submission);
+  // Now send the updated list to the host
+  game.sendToHost({ submissions: game.state.submissions });
 };
 
 const parse = async (request, game) => {
@@ -70,9 +98,11 @@ const parse = async (request, game) => {
       break;
     case "choosewinner":
       logger.info("Winner was chosen");
+      chooseWinner(request, game);
       break;
     case "eliminatecaption":
       logger.info("Caption eliminated");
+      eliminateCaption(request, game);
       break;
     case "newgame":
       logger.info("New game initiated");

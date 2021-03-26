@@ -74,4 +74,33 @@ describe("Testing the state object", () => {
       .on("message", msg => {})
       .on("close", () => done());
   });
+
+  describe('removeSubmission', () => {
+      it('removes requested submission from state', () => {
+          const state = new State("default");
+          state.addSubmission(new Submission('1', 'pizza'));
+          state.addSubmission(new Submission('2', 'donuts'));
+          state.removeSubmission('pizza');
+          expect(state.submissions.length).toBe(1);
+          expect(state.submissions[0].caption).toBe('donuts');
+      });
+
+      it('ignores request to remove caption that is not in state', () => {
+          const state = new State("default");
+          state.addSubmission(new Submission('1', 'redbull'));
+          state.removeSubmission('bang');
+          expect(state.submissions.length).toBe(1);
+          expect(state.submissions[0].caption).toBe('redbull');
+      });
+
+      it('removes multiple submissions if they have the same caption', () => {
+          const state = new State("default");
+          state.addSubmission(new Submission('1', 'icecream'));
+          state.addSubmission(new Submission('2', 'icecream'));
+          state.addSubmission(new Submission('3', 'chocolate'));
+          state.removeSubmission('icecream');
+          expect(state.submissions.length).toBe(1);
+          expect(state.submissions[0].caption).toBe('chocolate');
+      });
+  });
 });
