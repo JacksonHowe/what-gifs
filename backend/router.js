@@ -47,8 +47,14 @@ const replaceCaption = (request, game) => {
 const setGif = (request, game) => {
   // Don't need to save any info about finalizing the gif, just send a message to
   // the host and players saying its time to start submitting captions
-  game.sendToHost({ playState: PlayState.Host.awaitingSubmissions })
-  game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions })
+  game.sendToHost({ playState: PlayState.Host.awaitingSubmissions });
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions });
+};
+
+const getNewGif = async game => {
+  const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
+  game.setGif(gifUrl);
+  game.sendToHost({ gifUrl });
 };
 
 const eliminateCaption = (request, game) => {
@@ -63,9 +69,7 @@ const parse = async (request, game) => {
   switch (request.action) {
     case "getgif":
       logger.info("New gif requested");
-      const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
-      game.setGif(gifUrl);
-      game.sendToHost({ gifUrl });
+      getNewGif(game);
       break;
     case "setgif":
       logger.info("Gif is confirmed");
@@ -102,6 +106,7 @@ const parse = async (request, game) => {
       replaceCaption(request, game);
       break;
     case "playersready":
+      getNewGif(game);
       playersReady(request, game);
       break;
     default:
