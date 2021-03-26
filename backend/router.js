@@ -2,6 +2,7 @@ const getGif = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
+const player = require("./game-objects/player");
 
 const getPlayerById = (players, id) => {
   for (var i = 0; i < players.length; i++) {
@@ -36,6 +37,26 @@ const recordSubmission = (request, game) => {
   }
   logger.info(`Sending new caption back to player`);
   replaceCaption(request, game);
+};
+
+const chooseWinner = (request, game) => {
+  // Update score of winner and prepare scores to be sent to host
+  let scores = {};
+  for (let player of game.players) {
+    if (player.id == request.winningSubmission.playerID) {
+      player.incScore();
+    }
+    scores[player.id] = player.score;
+  }
+  // Send new round play state, winning submission, and scores to host
+  game.sendToHost({
+    playState: PlayState.Host.awaitingGifSelection,
+    winningSubmission: request.winningSubmission,
+    scores
+  });
+  // Choose new judge and let them know they need to choose a GIF
+  game.getJudge();
+  game.sendToJudge({ playState: PlayState.Player.judge });
 };
 
 const replaceCaption = (request, game) => {
@@ -77,6 +98,7 @@ const parse = async (request, game) => {
       break;
     case "choosewinner":
       logger.info("Winner was chosen");
+      chooseWinner(request, game);
       break;
     case "eliminatecaption":
       logger.info("Caption eliminated");
