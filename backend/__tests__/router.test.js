@@ -31,7 +31,7 @@ describe("Test suite for router object", () => {
       setGif(url) {
         this.state.gif = url;
       },
-      sendToHost(_) {}
+      sendToHost(_) { }
     };
     const method = { action: "getgif" };
     let r = await parse(method, game);
@@ -60,7 +60,7 @@ describe("Test suite for router object", () => {
       setGif(url) {
         this.state.gif = url;
       },
-      sendToHost(_) {}
+      sendToHost(_) { }
     };
     const method = { action: "getgif" };
     let r = await parse(method, game);
@@ -74,7 +74,7 @@ describe("Test suite for router object", () => {
     const game = {
       state: {
         submissions: [],
-        clearSubmissions() {}, //Don't clear so we can see if it was added
+        clearSubmissions() { }, //Don't clear so we can see if it was added
         addSubmission(newSub) {
           this.submissions.push(newSub);
         }
@@ -84,7 +84,7 @@ describe("Test suite for router object", () => {
           return "A fake new caption";
         }
       },
-      players: [{ id: "123456", send(_) {} }],
+      players: [{ id: "123456", send(_) { } }],
       getTheme() {
         return "default";
       },
@@ -94,8 +94,8 @@ describe("Test suite for router object", () => {
       setGif(url) {
         this.state.gif = url;
       },
-      sendToHost(_) {},
-      sendToJudge(_) {}
+      sendToHost(_) { },
+      sendToJudge(_) { }
     };
     const object = {
       action: "submitcaption",
@@ -234,6 +234,43 @@ describe("Test suite for router object", () => {
           caption: "A"
         }
       ]
+    });
+  });
+
+  test("choosewinner updates player score and chooses next judge", async () => {
+    const sendToHostMock = jest.fn();
+    const sendToJudgeMock = jest.fn();
+    const getJudgeMock = jest.fn();
+    const incScoreMock = jest.fn();
+    const game = {
+      players: [
+        { id: 1, name: "mary", score: 0, incScore: incScoreMock },
+        { id: 2, name: "alice", score: 1, incScore: incScoreMock },
+        { id: 3, name: "bob", score: 0, incScore: incScoreMock }
+      ],
+      sendToHost: sendToHostMock,
+      getJudge: getJudgeMock,
+      sendToJudge: sendToJudgeMock
+    };
+    const payload = {
+      action: "choosewinner",
+      winningSubmission: { playerID: 2, caption: "winning caption" }
+    };
+    const response = await parse(payload, game);
+    expect(response.status).toBe(200);
+    expect(incScoreMock).toHaveBeenCalledTimes(1);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      playState: "awaitingGifSelection",
+      winningSubmission: payload.winningSubmission,
+      scores: {
+        1: 0,
+        2: 1,
+        3: 0
+      }
+    });
+    expect(getJudgeMock).toHaveBeenCalledTimes(1);
+    expect(sendToJudgeMock).toHaveBeenCalledWith({
+      playState: "judge"
     });
   });
 });

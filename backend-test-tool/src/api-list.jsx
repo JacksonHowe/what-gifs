@@ -73,7 +73,7 @@ class APIList extends Component {
   chooseWinner(e) {
     const obj = {
       type: "player",
-      action: "choosewinnner",
+      action: "choosewinner",
       winningSubmission: "<Submission>",
       gameID: this.props.gameID || ""
     };
