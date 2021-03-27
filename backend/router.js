@@ -17,7 +17,9 @@ const playersReady = (request, game) => {
   game.sendToHost({ playState: PlayState.Host.awaitingGifSelection });
   //Select a judge and send that state to judge
   game.getJudge();
-  game.sendToJudge({ playState: PlayState.Player.judge });
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
+  game.sendToJudge({ judge: true });
+  game.sendToHost({ judge: game.state.judge })
 };
 
 const recordSubmission = (request, game) => {
@@ -27,13 +29,17 @@ const recordSubmission = (request, game) => {
   game.state.submissions.find(element => element.playerID === request.playerID)
     ? logger.info("Player attempted to resubmit, ignoring")
     : game.state.addSubmission(submission);
+    game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
 
   if (game.state.submissions.length >= game.players.length - 1) {
     //Send submissions to Host
     game.sendToHost({ submissions: game.state.submissions });
     //Send to the judge
-    game.sendToJudge({ submissions: game.state.submissions });
-    game.state.clearSubmissions();
+    game.sendToJudge({
+      submissions: game.state.submissions,
+      playState: PlayState.Player.selectWinnerPending
+    });
+    game.sendToHost({ playState: PlayState.Host.selectWinnerPending })
   }
   logger.info(`Sending new caption back to player`);
   replaceCaption(request, game);
@@ -55,8 +61,11 @@ const chooseWinner = (request, game) => {
     scores
   });
   // Choose new judge and let them know they need to choose a GIF
+  game.state.clearSubmissions();
   game.getJudge();
-  game.sendToJudge({ playState: PlayState.Player.judge });
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
+  game.sendToJudge({ judge: true });
+  game.sendToHost({ judge: game.state.judge })
 };
 
 const replaceCaption = (request, game) => {
@@ -72,9 +81,15 @@ const setGif = (request, game) => {
   game.sendAllPlayers({ playState: PlayState.Player.awaitingSubmissions });
 };
 
+const getNewGif = async game => {
+  const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
+  game.setGif(gifUrl);
+  game.sendToHost({ gifUrl });
+};
+
 const eliminateCaption = (request, game) => {
   // Remove all submissions from game state with the requested caption
-  game.state.removeSubmission(request.submission);
+  game.state.removeSubmission(request.submission.caption);
   // Now send the updated list to the host
   game.sendToHost({ submissions: game.state.submissions });
 };
@@ -84,9 +99,7 @@ const parse = async (request, game) => {
   switch (request.action) {
     case "getgif":
       logger.info("New gif requested");
-      const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
-      game.setGif(gifUrl);
-      game.sendToHost({ gifUrl });
+      getNewGif(game);
       break;
     case "setgif":
       logger.info("Gif is confirmed");
@@ -124,6 +137,7 @@ const parse = async (request, game) => {
       replaceCaption(request, game);
       break;
     case "playersready":
+      getNewGif(game);
       playersReady(request, game);
       break;
     default:

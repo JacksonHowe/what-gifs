@@ -3,6 +3,7 @@ const WebSocket = require("ws");
 const Game = require("./game-objects/game");
 const Player = require("./game-objects/player");
 const State = require("./game-objects/state");
+const PlayState = require("./game-objects/play-state");
 const { parse } = require("./router");
 const _ = require("lodash");
 const logger = require("./logger")(module);
@@ -63,13 +64,16 @@ server.on("connection", (socket, req) => {
         logger.info("Created new game [" + o.gameID + "]");
         games.set(o.gameID, game);
         socket.send(JSON.stringify(o));
+        socket.send(
+          JSON.stringify({ playState: PlayState.Host.waitingForPlayers })
+        );
         break;
       case "connect":
         logger.info("New player initiated a connect");
         logger.debug("Params: " + JSON.stringify(params));
         if (games.has(params.gameID)) {
           let player = new Player(
-            params.playerID,
+            uuidv4(),
             params.name || "No-name",
             socket
           );
@@ -83,6 +87,12 @@ server.on("connection", (socket, req) => {
             "Added new player; total [" +
               games.get(params.gameID).players.length +
               "] players"
+          );
+          socket.send(
+            JSON.stringify({
+              playState: PlayState.Player.waitingForPlayers,
+              playerID: player.id
+            })
           );
           //Send captions to player
           player.send(objects.captions());
