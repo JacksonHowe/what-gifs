@@ -73,7 +73,7 @@ server.on("connection", (socket, req) => {
         logger.debug("Params: " + JSON.stringify(params));
         if (games.has(params.gameID)) {
           let player = new Player(
-            params.playerID,
+            uuidv4(),
             params.name || "No-name",
             socket
           );
@@ -87,6 +87,12 @@ server.on("connection", (socket, req) => {
             "Added new player; total [" +
             games.get(params.gameID).players.length +
             "] players"
+          );
+          socket.send(
+            JSON.stringify({
+              playState: PlayState.Player.waitingForPlayers,
+              playerID: player.id
+            })
           );
           //Send captions to player
           player.send(objects.captions());
