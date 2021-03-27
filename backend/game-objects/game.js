@@ -64,6 +64,13 @@ module.exports = function Game(gameID, conn, theme) {
     this.state.judge.send(object);
   };
 
+  this.sendToPlayer = function(object, playerID) {
+    const player = this.players.find(function(player) {
+      return player.id === playerID
+    })
+    player.send(object);
+  };
+
   this.sendToHost = function(object) {
     this.host.send(JSON.stringify(object));
   };
