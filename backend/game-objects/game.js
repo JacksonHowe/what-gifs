@@ -4,13 +4,23 @@ const State = require("./state");
 const CAPTION_FILE = "./../files/captions.txt";
 const HAND_SIZE = 5;
 
-module.exports = function Game(gameID, conn, theme) {
-  this.id = gameID;
-  this.host = conn; //Websocket connection
+module.exports = function Game(host, theme) {
+  this.host = host; // Websocket connection
   this.players = [];
   this.nextJudge = 0;
   this.captions = new Captions(CAPTION_FILE);
   this.state = new State(theme);
+
+  this.generateUUID = function() {
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+    var stringLen = 4;
+    var result = "";
+    for (var i = stringLen; i > 0; --i) {
+      result += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+    return result;
+  };
+  this.id = this.generateUUID();
 
   this.getJudge = function() {
     if (this.players.length !== 0) {
@@ -76,6 +86,10 @@ module.exports = function Game(gameID, conn, theme) {
   this.setId = function(id) {
     this.id = id;
   };
+
+  this.getId = function() {
+    return this.id;
+  }
 
   this.getTheme = function() {
     return this.state.getTheme();
