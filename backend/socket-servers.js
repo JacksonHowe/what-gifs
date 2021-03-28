@@ -97,7 +97,7 @@ server.on("connection", (socket, req) => {
           );
           //Send captions to player
           var hand = game.dealFirstHand();
-          player.send(hand);
+          player.send({ captions: hand });
           logger.info("Captions sent to player");
           //Send player array to the Host
           let p = { players: game.getPlayers() };
