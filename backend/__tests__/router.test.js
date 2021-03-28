@@ -1,5 +1,6 @@
 const { parse } = require("../router");
 const giphy = require("@giphy/js-fetch-api");
+const Player = require("../game-objects/player");
 const State = require("../game-objects/state");
 const Submission = require("../game-objects/submission");
 
@@ -95,7 +96,8 @@ describe("Test suite for router object", () => {
         this.state.gif = url;
       },
       sendToHost(_) { },
-      sendToJudge(_) { }
+      sendToJudge(_) { },
+      sendToPlayer(_, _2) { }
     };
     const object = {
       action: "submitcaption",
@@ -132,12 +134,17 @@ describe("Test suite for router object", () => {
 
   test("PlayersReady state action sends playState update to host and judge", async () => {
     const sendToHostMock = jest.fn();
+    const sendAllPlayersMock = jest.fn();
     const sendToJudgeMock = jest.fn();
     const getJudgeMock = jest.fn();
     const game = {
+      sendAllPlayers: sendAllPlayersMock,
       sendToHost: sendToHostMock,
       sendToJudge: sendToJudgeMock,
-      getJudge: getJudgeMock
+      getJudge: getJudgeMock,
+      state: {
+        judge: new Player("UUID", "Player Name", "socket")
+      }
     };
     const payload = {
       action: "playersready",
@@ -148,8 +155,13 @@ describe("Test suite for router object", () => {
     expect(sendToHostMock).toHaveBeenCalledWith({
       playState: "awaitingGifSelection"
     });
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "awaitingGifSelection"
+    });
     expect(getJudgeMock).toHaveBeenCalled();
-    expect(sendToJudgeMock).toHaveBeenCalledWith({ playState: "judge" });
+    expect(sendToJudgeMock).toHaveBeenCalledWith({
+      judge: true
+    });
   });
 
   test("newgame action with theme", async () => {
@@ -214,25 +226,24 @@ describe("Test suite for router object", () => {
   test("eliminatecaption action sends updated submissions to host", async () => {
     const sendToHostMock = jest.fn();
     const state = new State('default');
-    state.addSubmission(new Submission('1', 'A'));
-    state.addSubmission(new Submission('2', 'B'));
+    const one = new Submission('1', 'A');
+    state.addSubmission(one);
+    const two = new Submission('2', 'B');
+    state.addSubmission(two);
     const game = {
       sendToHost: sendToHostMock,
       state
     };
     const payload = {
       action: "eliminatecaption",
-      submission: "B",
+      submission: two,
       gameID: "XXXX"
     };
     const r = await parse(payload, game);
     expect(r.status).toBe(200);
     expect(sendToHostMock).toHaveBeenCalledWith({
       submissions: [
-        {
-          playerID: "1",
-          caption: "A"
-        }
+        one
       ]
     });
   });
@@ -242,6 +253,8 @@ describe("Test suite for router object", () => {
     const sendToJudgeMock = jest.fn();
     const getJudgeMock = jest.fn();
     const incScoreMock = jest.fn();
+    const clearSubmissionsMock = jest.fn();
+    const sendAllPlayersMock = jest.fn();
     const game = {
       players: [
         { id: 1, name: "mary", score: 0, incScore: incScoreMock },
@@ -250,7 +263,11 @@ describe("Test suite for router object", () => {
       ],
       sendToHost: sendToHostMock,
       getJudge: getJudgeMock,
-      sendToJudge: sendToJudgeMock
+      sendToJudge: sendToJudgeMock,
+      state: {
+        clearSubmissions: clearSubmissionsMock
+      },
+      sendAllPlayers: sendAllPlayersMock
     };
     const payload = {
       action: "choosewinner",
@@ -268,9 +285,13 @@ describe("Test suite for router object", () => {
         3: 0
       }
     });
+    expect(clearSubmissionsMock).toHaveBeenCalledTimes(1);
     expect(getJudgeMock).toHaveBeenCalledTimes(1);
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "awaitingGifSelection"
+    });
     expect(sendToJudgeMock).toHaveBeenCalledWith({
-      playState: "judge"
+      judge: true
     });
   });
 });
