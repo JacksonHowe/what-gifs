@@ -72,7 +72,6 @@
             <v-card
               v-for="caption, index in captions"
               class="ma-3"
-              style="height: 50px;"
               :key="caption"
               :color="selectedIndex === index ? 'light-blue lighten-3' : ''"
               @click="selectedIndex = index"
@@ -105,7 +104,6 @@
             <v-card
               v-for="submission, index in submissions"
               class="ma-3"
-              style="height: 50px;"
               :key="submission.playerID"
               :disabled="submission.disabled"
               :color="selectedIndex === index ? 'light-blue lighten-3' : ''"

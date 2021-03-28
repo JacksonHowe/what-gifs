@@ -82,10 +82,11 @@ server.on("connection", (socket, req) => {
           players.set(player.id, player);
 
           //Add player to the game state
-          games.get(params.gameID).addPlayer(player);
+          const game = games.get(params.gameID)
+          game.addPlayer(player);
           logger.info(
             "Added new player; total [" +
-              games.get(params.gameID).players.length +
+              game.players.length +
               "] players"
           );
           socket.send(
@@ -95,11 +96,12 @@ server.on("connection", (socket, req) => {
             })
           );
           //Send captions to player
-          player.send(objects.captions());
+          var hand = game.dealFirstHand();
+          player.send({ captions: hand });
           logger.info("Captions sent to player");
           //Send player array to the Host
-          let p = { players: games.get(params.gameID).getPlayers() };
-          games.get(params.gameID).sendToHost(p);
+          let p = { players: game.getPlayers() };
+          game.sendToHost(p);
           logger.info("Players sent to host");
         } else {
           logger.info(
