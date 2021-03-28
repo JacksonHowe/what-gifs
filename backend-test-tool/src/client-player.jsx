@@ -70,7 +70,9 @@ class ClientPlayer extends Component {
         "&playerID=" +
         params.playerID +
         "&gameID=" +
-        params.gameID;
+        params.gameID +
+        "&name=" +
+        params.name;
     } else {
       r_box = "host-response";
       p = "?action=" + params.action + "&theme=" + params.theme;
