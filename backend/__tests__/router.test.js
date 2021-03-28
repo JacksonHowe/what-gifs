@@ -33,8 +33,8 @@ describe("Test suite for router object", () => {
       },
       sendToHost(_) { }
     };
-    const method = { action: "getgif" };
-    let r = await parse(method, game);
+    const request = { action: "getgif" };
+    let r = await parse(request, game);
     expect(r.status).toBe(200);
     expect(game.getState().gifOffset).toBe(1);
     expect(game.getState().gif).toBe(trendingURL);
@@ -137,7 +137,17 @@ describe("Test suite for router object", () => {
     const game = {
       sendToHost: sendToHostMock,
       sendToJudge: sendToJudgeMock,
-      getJudge: getJudgeMock
+      getJudge: getJudgeMock,
+      getTheme() {
+        return "default";
+      },
+      state: {
+        gifOffset: 0
+      },
+      getState() {
+        return this.state;
+      },
+      setGif(_) { }
     };
     const payload = {
       action: "playersready",
