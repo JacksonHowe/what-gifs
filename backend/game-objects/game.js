@@ -75,8 +75,10 @@ module.exports = function Game(host, theme) {
   this.sendToPlayer = function(object, playerID) {
     const player = this.players.find(function(player) {
       return player.id === playerID
-    })
-    player.send(object);
+    });
+    if (player && player.send) {
+      player.send(object);
+    }
   };
 
   this.sendToHost = function(object) {

@@ -86,18 +86,16 @@ server.on("connection", (socket, req) => {
           game.addPlayer(player);
           logger.info(
             "Added new player; total [" +
-              game.players.length +
-              "] players"
-          );
-          socket.send(
-            JSON.stringify({
-              playState: PlayState.Player.waitingForPlayers,
-              playerID: player.id
-            })
+            game.players.length +
+            "] players"
           );
           //Send captions to player
           var hand = game.dealFirstHand();
-          player.send({ captions: hand });
+          player.send({
+            playState: PlayState.Player.waitingForPlayers,
+            playerID: player.id,
+            captions: hand
+          });
           logger.info("Captions sent to player");
           //Send player array to the Host
           let p = { players: game.getPlayers() };

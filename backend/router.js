@@ -13,13 +13,15 @@ const getPlayerById = (players, id) => {
 };
 
 const playersReady = (request, game) => {
-  //Send awaitGifSelection state to Host
-  game.sendToHost({ playState: PlayState.Host.awaitingGifSelection });
   //Select a judge and send that state to judge
   game.getJudge();
   game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
   game.sendToJudge({ judge: true });
-  game.sendToHost({ judge: game.state.judge })
+  //Send awaitGifSelection state and new judge to Host
+  game.sendToHost({
+    playState: PlayState.Host.awaitingGifSelection,
+    judge: game.state.judge.getSelf()
+  })
 };
 
 const recordSubmission = (request, game) => {
@@ -29,17 +31,19 @@ const recordSubmission = (request, game) => {
   game.state.submissions.find(element => element.playerID === request.playerID)
     ? logger.info("Player attempted to resubmit, ignoring")
     : game.state.addSubmission(submission);
-    game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
+  game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
 
   if (game.state.submissions.length >= game.players.length - 1) {
     //Send submissions to Host
-    game.sendToHost({ submissions: game.state.submissions });
+    game.sendToHost({
+      submissions: game.state.submissions,
+      playState: PlayState.Host.selectWinnerPending
+    });
     //Send to the judge
     game.sendToJudge({
       submissions: game.state.submissions,
       playState: PlayState.Player.selectWinnerPending
     });
-    game.sendToHost({ playState: PlayState.Host.selectWinnerPending })
   }
   logger.info(`Sending new caption back to player`);
   replaceCaption(request, game);
@@ -54,18 +58,18 @@ const chooseWinner = (request, game) => {
     }
     scores[player.id] = player.score;
   }
-  // Send new round play state, winning submission, and scores to host
-  game.sendToHost({
-    playState: PlayState.Host.awaitingGifSelection,
-    winningSubmission: request.winningSubmission,
-    scores
-  });
   // Choose new judge and let them know they need to choose a GIF
   game.state.clearSubmissions();
   game.getJudge();
   game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
   game.sendToJudge({ judge: true });
-  game.sendToHost({ judge: game.state.judge })
+  // Send new round play state, winning submission, scores, and new judge to host
+  game.sendToHost({
+    playState: PlayState.Host.awaitingGifSelection,
+    winningSubmission: request.winningSubmission,
+    scores,
+    judge: game.state.judge.getSelf()
+  });
 };
 
 const replaceCaption = (request, game) => {
