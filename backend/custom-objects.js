@@ -6,18 +6,6 @@
 
 //Probably need to require loading the captions here
 
-//Generate a game ID
-function generateGameUuid() {
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-  var stringLen = 4;
-  var result = "";
-  for (var i = stringLen; i > 0; --i)
-    result += chars[Math.round(Math.random() * (chars.length - 1))];
-
-  var obj = { gameID: result };
-  return obj;
-}
-
 //Return Error Obj
 function returnError(s = 400, m = "Bad Request") {
   var obj = { status: s, msg: m };
@@ -30,6 +18,5 @@ function sendCaptions() {
   return obj;
 }
 
-exports.genGameUuid = generateGameUuid;
 exports.error = returnError;
 exports.captions = sendCaptions;
