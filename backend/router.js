@@ -103,7 +103,7 @@ const parse = async (request, game) => {
   switch (request.action) {
     case "getgif":
       logger.info("New gif requested");
-      getNewGif(game);
+      await getNewGif(game);
       break;
     case "setgif":
       logger.info("Gif is confirmed");
@@ -141,7 +141,7 @@ const parse = async (request, game) => {
       replaceCaption(request, game);
       break;
     case "playersready":
-      getNewGif(game);
+      await getNewGif(game);
       playersReady(request, game);
       break;
     default:
