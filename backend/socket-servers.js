@@ -32,7 +32,7 @@ function getJsonFromUrl(url) {
   if (url) {
     var query = url.substr(1);
     var result = {};
-    query.split("&").forEach(function (part) {
+    query.split("&").forEach(function(part) {
       var item = part.split("=");
       result[item[0]] = decodeURIComponent(item[1]);
     });
@@ -59,14 +59,14 @@ server.on("connection", (socket, req) => {
     switch (params.action) {
       case "startgame":
         //Create game state object
-        let o = objects.genGameUuid();
-        let game = new Game(o.gameID, socket, params.theme || "default");
-        logger.info("Created new game [" + o.gameID + "]");
-        games.set(o.gameID, game);
-        socket.send(JSON.stringify(o));
-        socket.send(
-          JSON.stringify({ playState: PlayState.Host.waitingForPlayers })
-        );
+        let game = new Game(socket, params.theme || "default");
+        let response = {
+          gameID: game.getId(),
+          playState: PlayState.Host.waitingForPlayers
+        };
+        logger.info("Created new game [" + response.gameID + "]");
+        games.set(response.gameID, game);
+        game.sendToHost(response);
         break;
       case "connect":
         logger.info("New player initiated a connect");
@@ -86,18 +86,16 @@ server.on("connection", (socket, req) => {
           game.addPlayer(player);
           logger.info(
             "Added new player; total [" +
-              game.players.length +
-              "] players"
-          );
-          socket.send(
-            JSON.stringify({
-              playState: PlayState.Player.waitingForPlayers,
-              playerID: player.id
-            })
+            game.players.length +
+            "] players"
           );
           //Send captions to player
           var hand = game.dealFirstHand();
-          player.send({ captions: hand });
+          player.send({
+            playState: PlayState.Player.waitingForPlayers,
+            playerID: player.id,
+            captions: hand
+          });
           logger.info("Captions sent to player");
           //Send player array to the Host
           let p = { players: game.getPlayers() };
