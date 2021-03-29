@@ -7,7 +7,8 @@ const PlayState = {
         gameFinished: 'gameFinished'
     },
     Player: {
-        judge: 'judge',
+        waitingForPlayers: 'waitingForPlayers',
+        awaitingGifSelection: 'awaitingGifSelection',
         awaitingSubmissions: 'awaitingSubmissions',
         selectWinnerPending: 'selectWinnerPending'
     }

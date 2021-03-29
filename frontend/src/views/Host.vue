@@ -1,73 +1,202 @@
 <template>
   <v-container fill-height>
     <v-row
-      v-if="gameID === -1"
       class="text-center"
     >
-      <v-col cols="12">
-        <v-text-field
-          label="Theme (Optional)"
-          v-model="theme"
-        />
-        <v-btn
-          @click="startGame"
-        >
-          Start
-        </v-btn>     
-      </v-col>
-    </v-row>
-    <v-row
-      v-else
-      class="text-center"
-    >
-      <v-col cols="12">
+      <v-col
+        v-if="playState !== 'init'"
+        cols="12"
+      >
         <h3>Game ID: {{ gameID }}</h3>
         <h3 v-if="theme">Theme: {{ theme }}</h3>
       </v-col>
-      <v-col cols="12">
-        <v-simple-table dense>
-          <template>
-            <thead>
-              <tr>
-                <th style="text-align: center" colspan="2">Scores</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="player, i in players"
-                :key="player.uuid"
-              >
-                <td>{{ player.name }}</td>
-                <td>{{ scores[i] }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
-      </v-col>
 
-      <v-col
-        cols="12"
-        align="center"
-      >
-        <v-img
-          max-height="500"
-          max-width="400"
-          :src="gifUrl"
-        />
-      </v-col>
+      <template v-if="playState === 'init'">
+        <v-col cols="12">
+          <v-text-field
+            label="Theme (Optional)"
+            v-model="theme"
+          />
+          <v-btn
+            @click="startGame"
+          >
+            Start
+          </v-btn>
+        </v-col>
+      </template>
 
-      <v-col cols="12">
-        <h2>Judge: {{ players[judge].name }}</h2>
-      </v-col>
-      <v-col cols="12">
-        <v-list-item
-          v-for="submission in submissions"
-          :key="submission"
-          style="display: block"
+      <template v-else-if="playState === 'waitingForPlayers'">
+        <v-col
+          cols="12"
         >
-          {{ submission }}
-        </v-list-item>
-      </v-col>
+          <h2>Waiting for Players</h2>
+        </v-col>
+        <v-col cols="12">
+          <v-list-item
+            v-for="player in players"
+            :key="player.name"
+            style="display: block"
+          >
+            {{ player.name }}
+          </v-list-item>
+        </v-col>
+        <v-col cols="12">
+          <v-btn
+            :disabled="players.length < 2"
+            @click="confirmPlayersReady"
+          >
+            Ready to Play!
+          </v-btn>
+        </v-col>
+      </template>
+
+      <template v-else-if="playState === 'awaitingGifSelection'">
+        <v-col
+          v-if="players.length"
+          cols="12"
+        >
+          <v-simple-table dense>
+            <template>
+              <thead>
+                <tr>
+                  <th style="text-align: center" colspan="2">Scores</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="player in players"
+                  :key="player.name"
+                >
+                  <td>{{ player.name }}</td>
+                  <td>{{ player.score }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+
+        <v-col
+          v-if="judge"
+          cols="12"
+        >
+          <h2>Judge: {{ judge.name }}</h2>
+        </v-col>
+
+        <v-col
+          cols="12"
+          align="center"
+        >
+          <v-img
+            max-height="500"
+            max-width="400"
+            :src="gifUrl"
+          />
+        </v-col>
+      </template>
+
+      <template v-else-if="playState === 'awaitingSubmissions'">
+        <v-col
+          v-if="players.length"
+          cols="12"
+        >
+          <v-simple-table dense>
+            <template>
+              <thead>
+                <tr>
+                  <th style="text-align: center" colspan="2">Scores</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="player in players"
+                  :key="player.name"
+                >
+                  <td>{{ player.name }}</td>
+                  <td>{{ player.score }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+
+        <v-col
+          v-if="judge"
+          cols="12"
+        >
+          <h2>Judge: {{ judge.name }}</h2>
+        </v-col>
+
+        <v-col
+          cols="12"
+          align="center"
+        >
+          <v-img
+            max-height="500"
+            max-width="400"
+            :src="gifUrl"
+          />
+        </v-col>
+
+        <v-col cols="12">
+          <h2>Waiting for Submissions</h2>
+        </v-col>
+      </template>
+
+      <template v-else-if="playState === 'selectWinnerPending'">
+        <v-col
+          v-if="judge"
+          cols="12"
+        >
+          <h2>Judge: {{ judge.name }}</h2>
+        </v-col>
+
+        <v-col
+          cols="12"
+          align="center"
+        >
+          <v-img
+            max-height="500"
+            max-width="400"
+            :src="gifUrl"
+          />
+        </v-col>
+
+        <v-col cols="12">
+          <v-list-item
+            v-for="submission in submissions"
+            :key="submission.playerID"
+            style="display: block"
+          >
+            {{ submission.caption }}
+          </v-list-item>
+        </v-col>
+      </template>
+
+      <template v-else-if="playState === 'gameFinished'">
+        <v-col
+          v-if="players.length"
+          cols="12"
+        >
+          <v-simple-table dense>
+            <template>
+              <thead>
+                <tr>
+                  <th style="text-align: center" colspan="2">Scores</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="player in players"
+                  :key="player.name"
+                >
+                  <td>{{ player.name }}</td>
+                  <td>{{ player.score }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
+        </v-col>
+      </template>
     </v-row>
   </v-container>
 </template>
@@ -88,34 +217,23 @@
         connection: null,
         theme: '',
         gameID: -1,
-        judge: 3,
-        gifUrl: 'https://media.giphy.com/media/10LKovKon8DENq/source.gif',
-        players: [
-          {
-            uuid: 1,
-            name: 'Player 1',
-          },
-          {
-            uuid: 2,
-            name: 'Player 2',
-          },
-          {
-            uuid: 3,
-            name: 'Player 3',
-          },
-          {
-            uuid: 4,
-            name: 'Player 4',
-          },
-          {
-            uuid: 5,
-            name: 'Player 5',
-          }
-        ],
+        judge: null,
+        playState: 'init',
+        gifUrl: '',
+        players: [],
+        scores: [],
         submissions: ['Caption 1', 'Caption 2', 'Caption 3', 'Caption 4'],
-        scores: [2, 1, 1, 0, 3],
         winner: -1,
         winningSubmission: 'Winner winner chicken dinner'
+      }
+    },
+
+    watch: {
+      scores (vals) {
+        for (const id in vals) {
+          const i = this.players.findIndex(player => player.id === id)
+          this.players[i].score = vals[id]
+        }
       }
     },
 
@@ -131,6 +249,14 @@
         this.connection.onmessage = event => {
           this.onMessage(JSON.parse(event.data))
         }
+      },
+
+      confirmPlayersReady () {
+        const data = {
+          action: 'playersready',
+          gameID: this.gameID
+        }
+        this.sendMessage(data)
       },
 
       sendMessage (message) {
