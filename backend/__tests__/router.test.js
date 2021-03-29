@@ -153,6 +153,7 @@ describe("Test suite for router object", () => {
     const response = await parse(payload, game);
     expect(response.status).toBe(200);
     expect(sendToHostMock).toHaveBeenCalledWith({
+      judge: game.state.judge.getSelf(),
       playState: "awaitingGifSelection"
     });
     expect(sendAllPlayersMock).toHaveBeenCalledWith({
@@ -265,7 +266,8 @@ describe("Test suite for router object", () => {
       getJudge: getJudgeMock,
       sendToJudge: sendToJudgeMock,
       state: {
-        clearSubmissions: clearSubmissionsMock
+        clearSubmissions: clearSubmissionsMock,
+        judge: new Player("UUID", "Player Name", "socket")
       },
       sendAllPlayers: sendAllPlayersMock
     };
@@ -277,6 +279,7 @@ describe("Test suite for router object", () => {
     expect(response.status).toBe(200);
     expect(incScoreMock).toHaveBeenCalledTimes(1);
     expect(sendToHostMock).toHaveBeenCalledWith({
+      judge: game.state.judge.getSelf(),
       playState: "awaitingGifSelection",
       winningSubmission: payload.winningSubmission,
       scores: {
