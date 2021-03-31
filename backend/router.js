@@ -92,6 +92,10 @@ const getNewGif = async game => {
 };
 
 const eliminateCaption = (request, game) => {
+  if (game.state.submissions.length < 2) {
+    game.sendToJudge({error: "You can't eliminate the last caption"});
+    return;
+  }
   // Remove all submissions from game state with the requested caption
   game.state.removeSubmission(request.submission.caption);
   // Now send the updated list to the host
