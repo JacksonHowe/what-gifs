@@ -232,28 +232,52 @@ describe("Test suite for router object", () => {
     expect(sendMock).toHaveBeenCalledTimes(game.players.length);
   });
 
-  test("eliminatecaption action sends updated submissions to host", async () => {
-    const sendToHostMock = jest.fn();
-    const state = new State('default');
-    const one = new Submission('1', 'A');
-    state.addSubmission(one);
-    const two = new Submission('2', 'B');
-    state.addSubmission(two);
-    const game = {
-      sendToHost: sendToHostMock,
-      state
-    };
-    const payload = {
-      action: "eliminatecaption",
-      submission: two,
-      gameID: "XXXX"
-    };
-    const r = await parse(payload, game);
-    expect(r.status).toBe(200);
-    expect(sendToHostMock).toHaveBeenCalledWith({
-      submissions: [
-        one
-      ]
+  describe('eliminatecaption action', () => {
+    test('sends updated submissions to host', async () => {
+      const sendToHostMock = jest.fn();
+      const state = new State('default');
+      const one = new Submission('1', 'A');
+      state.addSubmission(one);
+      const two = new Submission('2', 'B');
+      state.addSubmission(two);
+      const game = {
+        sendToHost: sendToHostMock,
+        state
+      };
+      const payload = {
+        action: "eliminatecaption",
+        submission: two,
+        gameID: "XXXX"
+      };
+      const r = await parse(payload, game);
+      expect(r.status).toBe(200);
+      expect(sendToHostMock).toHaveBeenCalledWith({
+        submissions: [
+          one
+        ]
+      });
+    });
+
+    test("doesn't allow eliminating the last caption", async () => {
+      const sendToHostMock = jest.fn();
+      const sendToJudgeMock = jest.fn();
+      const state = new State('default');
+      const one = new Submission('1', 'A');
+      state.addSubmission(one);
+      const game = {
+        sendToHost: sendToHostMock,
+        sendToJudge: sendToJudgeMock,
+        state
+      };
+      const payload = {
+        action: "eliminatecaption",
+        submission: one,
+        gameID: "XXXX"
+      };
+      const r = await parse(payload, game);
+      expect(r.status).toBe(200);
+      expect(sendToHostMock).not.toHaveBeenCalled();
+      expect(sendToJudgeMock).toHaveBeenCalledWith({"error": "You can't eliminate the last caption"});
     });
   });
 
