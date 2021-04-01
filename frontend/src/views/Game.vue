@@ -22,6 +22,12 @@
             Join
           </v-btn>
         </v-col>
+        <v-col
+          cols="12"
+          v-if="msg"
+        >
+          <h3 class="error">{{ msg }}</h3>
+        </v-col>
       </template>
 
       <template
@@ -158,6 +164,7 @@
         name: '',
         playerID: null,
         gameID: '',
+        msg: '',
         playState: 'init',
         judge: false,
         captions: [],
@@ -171,6 +178,15 @@
       caption (val) {
         this.captions.push(val)
       },
+      state () {
+        this.msg = ''
+      }
+    },
+
+    computed: {
+      submissionsLeft () {
+        return this.submissions.filter(submission => !submission.disabled).length
+      }
     },
 
     computed: {
