@@ -21,11 +21,18 @@ function shuffle(array) {
   return array;
 }
 
+function addWildCards(cards, count) {
+  for (let i = 0; i < count; i++) {
+    cards.push('WILD');
+  }
+}
+
 module.exports = function Captions(caption_file = DEFAULT_CAPTION_FILE_PATH) {
   //Read in the captions file as an array
   var text = fs.readFileSync(caption_file, "utf-8");
   var textByLine = text.split("\n");
   textByLine.pop(); //Remove the end line ''
+  addWildCards(textByLine, Math.ceil(textByLine.length / 20));
   shuffle(textByLine);
 
   this.contents = textByLine;
