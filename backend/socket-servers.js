@@ -72,6 +72,15 @@ server.on("connection", (socket, req) => {
         logger.info("New player initiated a connect");
         logger.debug("Params: " + JSON.stringify(params));
         if (games.has(params.gameID)) {
+          const game = games.get(params.gameID);
+          if (game.getPlayers().map(p => p.name).includes(params.name)) {
+            logger.info(`Player ${params.name} tried to connect, but that player name is already in the game.`);
+            socket.send(
+                JSON.stringify(objects.error(400, "That player name is taken"))
+            );
+            socket.close();
+            break;
+          }
           let player = new Player(
             uuidv4(),
             params.name || "No-name",
@@ -82,7 +91,6 @@ server.on("connection", (socket, req) => {
           players.set(player.id, player);
 
           //Add player to the game state
-          const game = games.get(params.gameID)
           game.addPlayer(player);
           logger.info(
             "Added new player; total [" +
