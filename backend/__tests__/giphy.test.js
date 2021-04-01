@@ -11,7 +11,7 @@ describe("Test suite for the Giphy API module", () => {
         giphy.__setResultURL(trendingURL);
 
         // Run the test
-        const result = await getGif("default", 0);
+        const result = await getGif("default");
         expect(result).toBe(trendingURL);
     });
 
@@ -21,7 +21,7 @@ describe("Test suite for the Giphy API module", () => {
         giphy.__setResultURL(searchURL);
 
         // Set up other test parameters and run the test
-        const result = await getGif("football", 0);
+        const result = await getGif("football");
         expect(result).toBe(searchURL);
     });
 });
