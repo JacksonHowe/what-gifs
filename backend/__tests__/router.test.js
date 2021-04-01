@@ -20,7 +20,6 @@ describe("Test suite for router object", () => {
     // Set up other test data and run the test
     const game = {
       state: {
-        gifOffset: 0,
         gif: ""
       },
       getTheme() {
@@ -37,7 +36,6 @@ describe("Test suite for router object", () => {
     const request = { action: "getgif" };
     let r = await parse(request, game);
     expect(r.status).toBe(200);
-    expect(game.getState().gifOffset).toBe(1);
     expect(game.getState().gif).toBe(trendingURL);
   });
 
@@ -49,7 +47,6 @@ describe("Test suite for router object", () => {
     // Set up other test data and run the test
     const game = {
       state: {
-        gifOffset: 0,
         gif: ""
       },
       getTheme() {
@@ -66,7 +63,6 @@ describe("Test suite for router object", () => {
     const method = { action: "getgif" };
     let r = await parse(method, game);
     expect(r.status).toBe(200);
-    expect(game.getState().gifOffset).toBe(1);
     expect(game.getState().gif).toBe(searchURL);
   });
 
@@ -146,7 +142,6 @@ describe("Test suite for router object", () => {
         return "default";
       },
       state: {
-        gifOffset: 0,
         judge: new Player("UUID", "Player Name", "socket")
       },
       getState() {
@@ -277,7 +272,7 @@ describe("Test suite for router object", () => {
       const r = await parse(payload, game);
       expect(r.status).toBe(200);
       expect(sendToHostMock).not.toHaveBeenCalled();
-      expect(sendToJudgeMock).toHaveBeenCalledWith({"error": "You can't eliminate the last caption"});
+      expect(sendToJudgeMock).toHaveBeenCalledWith({ "error": "You can't eliminate the last caption" });
     });
   });
 
