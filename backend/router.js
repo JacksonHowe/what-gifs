@@ -4,14 +4,6 @@ const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
 const player = require("./game-objects/player");
 
-const getPlayerById = (players, id) => {
-  for (var i = 0; i < players.length; i++) {
-    if (players[i].id === id) {
-      return players[i];
-    }
-  }
-};
-
 const playersReady = (request, game) => {
   //Select a judge and send that state to judge
   game.getJudge();
@@ -73,9 +65,7 @@ const chooseWinner = (request, game) => {
 };
 
 const replaceCaption = (request, game) => {
-  var player = getPlayerById(game.players, request.playerID);
-  const new_caption = game.captions.getCaption();
-  player.send({ caption: new_caption });
+  game.sendToPlayer({ caption: game.captions.getCaption() }, request.playerID);
 };
 
 const setGif = (request, game) => {
@@ -93,7 +83,7 @@ const getNewGif = async game => {
 
 const eliminateCaption = (request, game) => {
   if (game.state.submissions.length < 2) {
-    game.sendToJudge({error: "You can't eliminate the last caption"});
+    game.sendToJudge({ error: "You can't eliminate the last caption" });
     return;
   }
   // Remove all submissions from game state with the requested caption
