@@ -118,7 +118,7 @@
           <v-col cols="12">
             <v-btn
               class="mr-2"
-              :disabled="selectedIndex === -1"
+              :disabled="selectedIndex === -1 || submissionsLeft < 2"
               @click="eliminateCaption"
             >
               Eliminate
@@ -173,6 +173,12 @@
       },
     },
 
+    computed: {
+      submissionsLeft () {
+        return this.submissions.filter(submission => !submission.disabled).length
+      }
+    },
+
     methods: {
       joinGame () {
         this.connection = new WebSocket(`ws://localhost:8080?action=connect&gameID=${this.gameID}&name=${this.name}`)
@@ -196,7 +202,6 @@
         }
         this.captions.splice(this.selectedIndex, 1)
         this.selectedIndex = -1
-        console.log(data)
         this.sendMessage(data)
       },
 
@@ -207,7 +212,7 @@
           gameID: this.gameID
         }
         this.sendMessage(data)
-        this.submissions[this.selectedIndex].disabled = true
+        this.$set(this.submissions[this.selectedIndex], 'disabled', true)
         this.selectedIndex = -1
       },
 
