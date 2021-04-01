@@ -34,4 +34,10 @@ describe("Verify the Captions objects", () => {
       }
     }
   });
+
+  test('contains wild cards proportional to size of deck', () => {
+    const deck = new Captions("./__tests__/test-captions-long.txt");
+    expect(deck.contents.length).toBe(44); // 41 cards + ceil(41/20) wilds = 44
+    expect(deck.contents.filter(card => card === 'WILD').length).toBe(3);
+  });
 });
