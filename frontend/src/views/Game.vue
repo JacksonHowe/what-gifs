@@ -189,12 +189,6 @@
       }
     },
 
-    computed: {
-      submissionsLeft () {
-        return this.submissions.filter(submission => !submission.disabled).length
-      }
-    },
-
     methods: {
       joinGame () {
         this.connection = new WebSocket(`ws://localhost:8080?action=connect&gameID=${this.gameID}&name=${this.name}`)
