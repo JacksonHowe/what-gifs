@@ -3,6 +3,7 @@ const giphy = require("@giphy/js-fetch-api");
 const Player = require("../game-objects/player");
 const State = require("../game-objects/state");
 const Submission = require("../game-objects/submission");
+const Captions = require("../game-objects/captions");
 
 describe("Test suite for router object", () => {
   test("Parse a empty action and game object", async () => {
@@ -12,10 +13,11 @@ describe("Test suite for router object", () => {
     expect(r.status).toBe(400);
   });
 
-  test("Get a GIF for a game with the default theme", async () => {
-    // Set up mocked data
-    const trendingURL = "giphy.com/a/trending/gif/url";
-    giphy.__setResultURL(trendingURL);
+  describe("getgif action", () => {
+    test("Get a GIF for a game with the default theme", async () => {
+      // Set up mocked data
+      const trendingURL = "giphy.com/a/trending/gif/url";
+      giphy.__setResultURL(trendingURL);
 
     // Set up other test data and run the test
     const game = {
@@ -39,10 +41,10 @@ describe("Test suite for router object", () => {
     expect(game.getState().gif).toBe(trendingURL);
   });
 
-  test("Get a GIF for a game with a custom theme", async () => {
-    // Set up mocked data
-    const searchURL = "giphy.com/a/search/gif/url";
-    giphy.__setResultURL(searchURL);
+    test("Get a GIF for a game with a custom theme", async () => {
+      // Set up mocked data
+      const searchURL = "giphy.com/a/search/gif/url";
+      giphy.__setResultURL(searchURL);
 
     // Set up other test data and run the test
     const game = {
@@ -168,72 +170,74 @@ describe("Test suite for router object", () => {
     });
   });
 
-  test("newgame action with theme", async () => {
-    const setThemeMock = jest.fn();
-    const sendToHostMock = jest.fn();
-    const dealFirstHandMock = jest.fn();
-    const sendMock = jest.fn();
-    const getPlayersMock = jest.fn();
-    const game = {
-      players: [
-        { id: 1, name: "mary", send: sendMock },
-        { id: 2, name: "alice", send: sendMock },
-        { id: 3, name: "bob", send: sendMock }
-      ],
-      sendToHost: sendToHostMock,
-      dealFirstHand: dealFirstHandMock,
-      setTheme: setThemeMock,
-      getPlayers: getPlayersMock
-    };
-    const payload = {
-      action: "newgame",
-      theme: "sports"
-    };
-    const response = await parse(payload, game);
-    expect(response.status).toBe(200);
-    expect(sendToHostMock).toHaveBeenCalledTimes(1);
-    expect(getPlayersMock).toHaveBeenCalledTimes(1);
-    expect(setThemeMock).toHaveBeenCalledWith(payload.theme);
-    expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
-    expect(sendMock).toHaveBeenCalledTimes(game.players.length);
-  });
-
-  test("newgame action without theme", async () => {
-    const setThemeMock = jest.fn();
-    const sendToHostMock = jest.fn();
-    const dealFirstHandMock = jest.fn();
-    const sendMock = jest.fn();
-    const getPlayersMock = jest.fn();
-    const game = {
-      players: [
-        { id: 1, name: "mary", send: sendMock },
-        { id: 2, name: "alice", send: sendMock },
-        { id: 3, name: "bob", send: sendMock }
-      ],
-      sendToHost: sendToHostMock,
-      dealFirstHand: dealFirstHandMock,
-      setTheme: setThemeMock,
-      getPlayers: getPlayersMock
-    };
-    const payload = {
-      action: "newgame"
-    };
-    const response = await parse(payload, game);
-    expect(response.status).toBe(200);
-    expect(sendToHostMock).toHaveBeenCalledTimes(1);
-    expect(getPlayersMock).toHaveBeenCalledTimes(1);
-    expect(setThemeMock).toHaveBeenCalledTimes(0);
-    expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
-    expect(sendMock).toHaveBeenCalledTimes(game.players.length);
-  });
-
-  describe('eliminatecaption action', () => {
-    test('sends updated submissions to host', async () => {
+  describe("newgame action", () => {
+    test("newgame action with theme", async () => {
+      const setThemeMock = jest.fn();
       const sendToHostMock = jest.fn();
-      const state = new State('default');
-      const one = new Submission('1', 'A');
+      const dealFirstHandMock = jest.fn();
+      const sendMock = jest.fn();
+      const getPlayersMock = jest.fn();
+      const game = {
+        players: [
+          { id: 1, name: "mary", send: sendMock },
+          { id: 2, name: "alice", send: sendMock },
+          { id: 3, name: "bob", send: sendMock }
+        ],
+        sendToHost: sendToHostMock,
+        dealFirstHand: dealFirstHandMock,
+        setTheme: setThemeMock,
+        getPlayers: getPlayersMock
+      };
+      const payload = {
+        action: "newgame",
+        theme: "sports"
+      };
+      const response = await parse(payload, game);
+      expect(response.status).toBe(200);
+      expect(sendToHostMock).toHaveBeenCalledTimes(1);
+      expect(getPlayersMock).toHaveBeenCalledTimes(1);
+      expect(setThemeMock).toHaveBeenCalledWith(payload.theme);
+      expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
+      expect(sendMock).toHaveBeenCalledTimes(game.players.length);
+    });
+
+    test("newgame action without theme", async () => {
+      const setThemeMock = jest.fn();
+      const sendToHostMock = jest.fn();
+      const dealFirstHandMock = jest.fn();
+      const sendMock = jest.fn();
+      const getPlayersMock = jest.fn();
+      const game = {
+        players: [
+          { id: 1, name: "mary", send: sendMock },
+          { id: 2, name: "alice", send: sendMock },
+          { id: 3, name: "bob", send: sendMock }
+        ],
+        sendToHost: sendToHostMock,
+        dealFirstHand: dealFirstHandMock,
+        setTheme: setThemeMock,
+        getPlayers: getPlayersMock
+      };
+      const payload = {
+        action: "newgame"
+      };
+      const response = await parse(payload, game);
+      expect(response.status).toBe(200);
+      expect(sendToHostMock).toHaveBeenCalledTimes(1);
+      expect(getPlayersMock).toHaveBeenCalledTimes(1);
+      expect(setThemeMock).toHaveBeenCalledTimes(0);
+      expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
+      expect(sendMock).toHaveBeenCalledTimes(game.players.length);
+    });
+  });
+
+  describe("eliminatecaption action", () => {
+    test("sends updated submissions to host", async () => {
+      const sendToHostMock = jest.fn();
+      const state = new State("default");
+      const one = new Submission("1", "A");
       state.addSubmission(one);
-      const two = new Submission('2', 'B');
+      const two = new Submission("2", "B");
       state.addSubmission(two);
       const game = {
         sendToHost: sendToHostMock,
@@ -256,8 +260,8 @@ describe("Test suite for router object", () => {
     test("doesn't allow eliminating the last caption", async () => {
       const sendToHostMock = jest.fn();
       const sendToJudgeMock = jest.fn();
-      const state = new State('default');
-      const one = new Submission('1', 'A');
+      const state = new State("default");
+      const one = new Submission("1", "A");
       state.addSubmission(one);
       const game = {
         sendToHost: sendToHostMock,
@@ -277,6 +281,7 @@ describe("Test suite for router object", () => {
   });
 
   test("choosewinner updates player score and chooses next judge", async () => {
+    // Setup
     const sendToHostMock = jest.fn();
     const sendToJudgeMock = jest.fn();
     const getJudgeMock = jest.fn();
@@ -298,11 +303,15 @@ describe("Test suite for router object", () => {
       },
       sendAllPlayers: sendAllPlayersMock
     };
+
+    // Run test
     const payload = {
       action: "choosewinner",
       winningSubmission: { playerID: 2, caption: "winning caption" }
     };
     const response = await parse(payload, game);
+
+    // Validate results
     expect(response.status).toBe(200);
     expect(incScoreMock).toHaveBeenCalledTimes(1);
     expect(sendToHostMock).toHaveBeenCalledWith({
@@ -323,5 +332,30 @@ describe("Test suite for router object", () => {
     expect(sendToJudgeMock).toHaveBeenCalledWith({
       judge: true
     });
+  });
+
+  test("replacecaption action", async () => {
+    // Setup
+    const sendToPlayerMock = jest.fn();
+    const game = {
+      players: [
+        new Player(1, "one", "conn")
+      ],
+      sendToPlayer: sendToPlayerMock,
+      captions: new Captions("./__tests__/test-captions.txt")
+    };
+
+    // Run test
+    const payload = {
+      action: "replacecaption",
+      playerID: 1
+    };
+    const response = await parse(payload, game);
+
+    // Validate results
+    expect(response.status).toBe(200);
+    expect(sendToPlayerMock).toHaveBeenCalledWith({
+      caption: game.captions.contents[game.captions.next - 1]
+    }, 1);
   });
 });
