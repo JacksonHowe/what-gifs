@@ -220,6 +220,7 @@
 </template>
 
 <script>
+  import settings from '../config'
 
   export default {
     name: 'Host',
@@ -269,7 +270,7 @@
 
     methods: {
       startGame () {
-        this.connection = new WebSocket(`ws://localhost:8080?action=startgame${this.theme ? '&theme=' + this.theme : ''}`)
+        this.connection = new WebSocket(`ws://${settings.hostname}?action=startgame${this.theme ? '&theme=' + this.theme : ''}`)
 
         this.connection.onopen = event => {
           console.log(event)
