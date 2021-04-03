@@ -86,14 +86,14 @@ const setGif = (request, game) => {
 };
 
 const getNewGif = async game => {
-  const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
+  const gifUrl = await getGif(game.getTheme());
   game.setGif(gifUrl);
   game.sendToHost({ gifUrl });
 };
 
 const eliminateCaption = (request, game) => {
   if (game.state.submissions.length < 2) {
-    game.sendToJudge({error: "You can't eliminate the last caption"});
+    game.sendToJudge({ error: "You can't eliminate the last caption" });
     return;
   }
   // Remove all submissions from game state with the requested caption

@@ -16,10 +16,16 @@ const giphy = new GiphyFetch(process.env.GIPHY_API_KEY);
 const PAGE_SIZE = 1; // Can be any number 1-100
 const RATING = "g"; // Can be "y", "g", "pg", "pg-13", or "r"
 
+// Generate a random offset in the range [min, max] (both inclusive)
+// to use in the Giphy API calls.
+function offset(min, max) {
+    return min + Math.floor(Math.random() * (max + 1 - min));
+}
+
 // Retrieve a trending GIF
-async function getTrending(offset) {
+async function getTrending() {
     try {
-        const result = await giphy.trending({ limit: PAGE_SIZE, rating: RATING, offset });
+        const result = await giphy.trending({ limit: PAGE_SIZE, rating: RATING, offset: offset(0, 4999) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
@@ -28,15 +34,9 @@ async function getTrending(offset) {
 }
 
 // Retrieve a GIF via a search term
-// Offset tells the Giphy API how many results to skip; default: 0
-async function giphySearch(term, offset) {
+async function giphySearch(term) {
     try {
-        // May need to add offset?
-        // If we do, need to track offset in game object
-        // Offset resets to 0 after each round, increments
-        // every time the GIF is changed (after each turn,
-        // every time the judge requests a new GIF)
-        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset });
+        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: offset(0, 4999) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
@@ -60,12 +60,12 @@ async function getRandom(tag = "") {
     }
 }
 
-module.exports = async function getGif(theme, offset) {
+module.exports = async function getGif(theme) {
     let result;
     if (theme !== "default") {
-        result = await giphySearch(theme, offset);
+        result = await giphySearch(theme);
     } else {
-        result = await getTrending(offset);
+        result = await getTrending();
     }
     return result;
 }
