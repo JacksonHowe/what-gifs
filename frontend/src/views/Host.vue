@@ -197,6 +197,24 @@
           </v-simple-table>
         </v-col>
       </template>
+
+      <v-dialog
+        transition="dialog-bottom-transition"
+        max-width="600"
+        v-if="winningPlayerIndex !== -1"
+        v-model="displayWinner"
+      >
+        <v-card>
+          <v-toolbar
+            color="primary"
+            dark
+          >Winning Caption</v-toolbar>
+          <v-card-text>
+            <div class="pa-1">"{{ winningSubmission.caption }}"</div>
+            <div class="pa-1">- {{ players[winningPlayerIndex].name }}</div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-row>
   </v-container>
 </template>
@@ -223,17 +241,29 @@
         players: [],
         scores: [],
         submissions: ['Caption 1', 'Caption 2', 'Caption 3', 'Caption 4'],
-        winner: -1,
-        winningSubmission: 'Winner winner chicken dinner'
+        displayWinner: false,
+        winningSubmission: {}
+      }
+    },
+
+    computed: {
+      winningPlayerIndex () {
+        return this.getPlayerIndex(this.winningSubmission.playerID)
       }
     },
 
     watch: {
       scores (vals) {
         for (const id in vals) {
-          const i = this.players.findIndex(player => player.id === id)
+          const i = this.getPlayerIndex(id)
           this.players[i].score = vals[id]
         }
+      },
+      winningSubmission () {
+        this.displayWinner  = true
+        setTimeout(() => {
+          this.displayWinner = false
+        }, 3500)
       }
     },
 
@@ -270,6 +300,10 @@
             this[prop] = message[prop]
           }
         }
+      },
+
+      getPlayerIndex(id) {
+        return this.players.findIndex(player => player.id === id)
       }
     }
   }
