@@ -76,7 +76,7 @@ const setGif = (request, game) => {
 };
 
 const getNewGif = async game => {
-  const gifUrl = await getGif(game.getTheme(), game.getState().gifOffset++);
+  const gifUrl = await getGif(game.getTheme());
   game.setGif(gifUrl);
   game.sendToHost({ gifUrl });
 };
