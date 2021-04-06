@@ -102,6 +102,13 @@
 
           <v-col cols="12">
             <v-btn
+              class="mr-2"
+              :disabled="selectedIndex === -1 || replacementsLeft === 0"
+              @click="replaceCaption"
+            >
+              Get New Caption
+            </v-btn>
+            <v-btn
               :disabled="selectedIndex === -1"
               @click="submitCaption"
             >
@@ -184,7 +191,8 @@
         captions: [],
         submissions: [],
         caption: '',
-        selectedIndex: -1
+        selectedIndex: -1,
+        replacementsLeft: 1
       }
     },
 
@@ -194,6 +202,7 @@
       },
       state () {
         this.msg = ''
+        this.replacementsLeft = 1
       }
     },
 
@@ -224,6 +233,18 @@
         this.connection.onmessage = event => {
           this.onMessage(JSON.parse(event.data))
         }
+      },
+
+      replaceCaption () {
+        const data = {
+          action: 'replacecaption',
+          playerID: this.playerID,
+          gameID: this.gameID
+        }
+        this.captions.splice(this.selectedIndex, 1)
+        this.selectedIndex = -1
+        this.replacementsLeft = 0
+        this.sendMessage(data)
       },
 
       submitCaption () {
