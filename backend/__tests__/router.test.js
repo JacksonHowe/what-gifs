@@ -19,53 +19,54 @@ describe("Test suite for router object", () => {
       const trendingURL = "giphy.com/a/trending/gif/url";
       giphy.__setResultURL(trendingURL);
 
-    // Set up other test data and run the test
-    const game = {
-      state: {
-        gif: ""
-      },
-      getTheme() {
-        return "default";
-      },
-      getState() {
-        return this.state;
-      },
-      setGif(url) {
-        this.state.gif = url;
-      },
-      sendToHost(_) { }
-    };
-    const request = { action: "getgif" };
-    let r = await parse(request, game);
-    expect(r.status).toBe(200);
-    expect(game.getState().gif).toBe(trendingURL);
-  });
+      // Set up other test data and run the test
+      const game = {
+        state: {
+          gif: ""
+        },
+        getTheme() {
+          return "default";
+        },
+        getState() {
+          return this.state;
+        },
+        setGif(url) {
+          this.state.gif = url;
+        },
+        sendToHost(_) { }
+      };
+      const request = { action: "getgif" };
+      let r = await parse(request, game);
+      expect(r.status).toBe(200);
+      expect(game.getState().gif).toBe(trendingURL);
+    });
 
     test("Get a GIF for a game with a custom theme", async () => {
       // Set up mocked data
       const searchURL = "giphy.com/a/search/gif/url";
       giphy.__setResultURL(searchURL);
 
-    // Set up other test data and run the test
-    const game = {
-      state: {
-        gif: ""
-      },
-      getTheme() {
-        return "football";
-      },
-      getState() {
-        return this.state;
-      },
-      setGif(url) {
-        this.state.gif = url;
-      },
-      sendToHost(_) { }
-    };
-    const method = { action: "getgif" };
-    let r = await parse(method, game);
-    expect(r.status).toBe(200);
-    expect(game.getState().gif).toBe(searchURL);
+      // Set up other test data and run the test
+      const game = {
+        state: {
+          gif: ""
+        },
+        getTheme() {
+          return "football";
+        },
+        getState() {
+          return this.state;
+        },
+        setGif(url) {
+          this.state.gif = url;
+        },
+        sendToHost(_) { }
+      };
+      const method = { action: "getgif" };
+      let r = await parse(method, game);
+      expect(r.status).toBe(200);
+      expect(game.getState().gif).toBe(searchURL);
+    });
   });
 
   test("Submit a caption", async () => {
