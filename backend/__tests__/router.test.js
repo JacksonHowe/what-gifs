@@ -359,4 +359,45 @@ describe("Test suite for router object", () => {
       caption: game.captions.contents[game.captions.next - 1]
     }, 1);
   });
+
+  test("continueplay action", async () => {
+    // Setup
+    const sendAllPlayersMock = jest.fn();
+    const sendToJudgeMock = jest.fn();
+    const sendToHostMock = jest.fn();
+    const game = {
+      players: [
+        new Player(1, "one", "conn"),
+        new Player(2, "two", "conn"),
+        new Player(3, "three", "conn")
+      ],
+      state: {
+        submissions: [
+          new Submission(1, 'caption')
+        ]
+      },
+      sendAllPlayers: sendAllPlayersMock,
+      sendToJudge: sendToJudgeMock,
+      sendToHost: sendToHostMock,
+    };
+
+    // Run test
+    const payload = {
+      action: "continueplay"
+    };
+    const response = await parse(payload, game);
+
+    // Validate results
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      submissions: game.state.submissions,
+      playState: "selectWinnerPending"
+    });
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "selectWinnerPending"
+    });
+    expect(sendToJudgeMock).toHaveBeenCalledWith({
+      submissions: game.state.submissions
+    });
+  });
 });
