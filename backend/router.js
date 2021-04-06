@@ -1,4 +1,4 @@
-const getGif = require("./giphy");
+const { getGif } = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
@@ -101,7 +101,7 @@ const setGif = (request, game) => {
 };
 
 const getNewGif = async game => {
-  const gifUrl = await getGif(game.getTheme());
+  const gifUrl = await getGif(game.getTheme(), game.getMaxGifOffset());
   game.setGif(gifUrl);
   game.sendToHost({ gifUrl });
 };

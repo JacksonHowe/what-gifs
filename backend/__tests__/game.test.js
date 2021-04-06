@@ -25,7 +25,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(ws, "default", 4999);
         game.setId(GAME_ID);
         game.host.send(JSON.stringify(OBJECT));
       })
@@ -40,7 +40,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(ws, "default", 4999);
         game.setId(GAME_ID);
         expect(game.state.theme).toBe("default");
         ws.close();
@@ -53,7 +53,7 @@ describe("Testing the game object", () => {
     expect.assertions(4);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(ws, "default", 4999);
         game.setId(GAME_ID);
         let p1 = new Player(ID, NAME, {});
         let p2 = new Player(ID2, NAME2, {});
@@ -75,7 +75,7 @@ describe("Testing the game object", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let game = new Game(ws, "default");
+        let game = new Game(ws, "default", 4999);
         game.setId(GAME_ID);
         expect(game.dealFirstHand().length).toBe(HAND_SIZE);
         ws.close();
@@ -90,9 +90,9 @@ describe("Test the Game object's UUID generator", () => {
     expect.assertions(3);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let one = new Game(ws, "default").getId();
-        let two = new Game(ws, "default").getId();
-        let three = new Game(ws, "default").getId();
+        let one = new Game(ws, "default", 4999).getId();
+        let two = new Game(ws, "default", 4999).getId();
+        let three = new Game(ws, "default", 4999).getId();
         expect(one).not.toEqual(two);
         expect(one).not.toEqual(three);
         expect(two).not.toEqual(three);
@@ -106,7 +106,7 @@ describe("Test the Game object's UUID generator", () => {
     expect.assertions(1);
     const ws = new WebSocket(ECHO_SERVER)
       .on("open", () => {
-        let one = new Game(ws, "default").getId();
+        let one = new Game(ws, "default", 4999).getId();
         expect(one).toHaveLength(4);
         ws.close();
       })
