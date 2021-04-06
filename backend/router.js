@@ -2,7 +2,7 @@ const getGif = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
-const player = require("./game-objects/player");
+const objects = require("./custom-objects");
 
 const playersReady = (request, game) => {
   //Select a judge and send that state to judge
