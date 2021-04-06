@@ -277,7 +277,10 @@ describe("Test suite for router object", () => {
       const r = await parse(payload, game);
       expect(r.status).toBe(200);
       expect(sendToHostMock).not.toHaveBeenCalled();
-      expect(sendToJudgeMock).toHaveBeenCalledWith({ "error": "You can't eliminate the last caption" });
+      expect(sendToJudgeMock).toHaveBeenCalledWith({
+        status: 400,
+        msg: "You can't eliminate the last caption"
+      });
     });
   });
 
