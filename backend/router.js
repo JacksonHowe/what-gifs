@@ -26,19 +26,44 @@ const recordSubmission = (request, game) => {
   game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
 
   if (game.state.submissions.length >= game.players.length - 1) {
+    // Start the judging, but don't update all player play states since
+    // they've already been updated by this function.
+    startJudging(request, game, false);
     //Send submissions to Host
-    game.sendToHost({
-      submissions: game.state.submissions,
-      playState: PlayState.Host.selectWinnerPending
-    });
+    // game.sendToHost({
+    //   submissions: game.state.submissions,
+    //   playState: PlayState.Host.selectWinnerPending
+    // });
     //Send to the judge
+    // game.sendToJudge({
+    //   submissions: game.state.submissions,
+    //   playState: PlayState.Player.selectWinnerPending
+    // });
+  }
+  logger.info(`Sending new caption back to player`);
+  replaceCaption(request, game);
+};
+
+const startJudging = (request, game, updateAllPlayersPlayState) => {
+  // Send submissions to Host
+  game.sendToHost({
+    submissions: game.state.submissions,
+    playState: PlayState.Host.selectWinnerPending
+  });
+  // Update all players to "selectWinnerPending" game state to ensure
+  // no more submissions are sent and send submissions to Judge.
+  // If the players have already been updated, just update the Judge.
+  if (updateAllPlayersPlayState) {
+    game.sendAllPlayers({ playState: PlayState.Player.selectWinnerPending });
+    game.sendToJudge({
+      submissions: game.state.submissions
+    });
+  } else {
     game.sendToJudge({
       submissions: game.state.submissions,
       playState: PlayState.Player.selectWinnerPending
     });
   }
-  logger.info(`Sending new caption back to player`);
-  replaceCaption(request, game);
 };
 
 const chooseWinner = (request, game) => {
@@ -137,6 +162,9 @@ const parse = async (request, game) => {
     case "playersready":
       await getNewGif(game);
       playersReady(request, game);
+      break;
+    case "continueplay":
+      startJudging(request, game, true);
       break;
     default:
       ret.status = 400;
