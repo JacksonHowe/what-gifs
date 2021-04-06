@@ -1,15 +1,12 @@
-const MultipathServer = require("ws-multipath");
 const WebSocket = require("ws");
 const Game = require("./game-objects/game");
 const Player = require("./game-objects/player");
-const State = require("./game-objects/state");
 const PlayState = require("./game-objects/play-state");
 const { parse } = require("./router");
 const _ = require("lodash");
 const logger = require("./logger")(module);
-const url = require("url");
 const objects = require("./custom-objects");
-// const State = require("./game-state");
+const { getOffsetMax } = require("./giphy");
 
 SERVER_PORT = 8080;
 
@@ -45,7 +42,7 @@ function getJsonFromUrl(url) {
 /*
   This block is the players endpoint of the websocket server
 */
-server.on("connection", (socket, req) => {
+server.on("connection", async (socket, req) => {
   //Do this stuff when a player connects to the server
 
   var players = new Map(); //Map of sockets -> player objects
@@ -58,8 +55,11 @@ server.on("connection", (socket, req) => {
   if (params && params.action) {
     switch (params.action) {
       case "startgame":
-        //Create game state object
-        let game = new Game(socket, params.theme || "default");
+        let theme = params.theme || "default";
+        let gifOffsetMax = theme === "default" ? 0 : await getOffsetMax(theme);
+        console.log(`gifOffsetMax: ${gifOffsetMax}`);
+        // Create game state object
+        let game = new Game(socket, params.theme || "default", gifOffsetMax);
         let response = {
           gameID: game.getId(),
           playState: PlayState.Host.waitingForPlayers
@@ -76,7 +76,7 @@ server.on("connection", (socket, req) => {
           if (game.getPlayers().map(p => p.name).includes(params.name)) {
             logger.info(`Player ${params.name} tried to connect, but that player name is already in the game.`);
             socket.send(
-                JSON.stringify(objects.error(400, "That player name is taken"))
+              JSON.stringify(objects.error(400, "That player name is taken"))
             );
             socket.close();
             break;

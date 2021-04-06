@@ -5,6 +5,11 @@ function __setResultURL(url) {
     resultURL = url;
 }
 
+let totalCount = 100000;
+function __setTotalCount(count) {
+    totalCount = count;
+}
+
 function search(_, _2) {
     return Promise.resolve({
         data: [{
@@ -15,7 +20,7 @@ function search(_, _2) {
             }
         }],
         pagination: {
-            total_count: 100000,
+            total_count: totalCount,
             count: 1,
             offset: 0
         },
@@ -37,7 +42,7 @@ function trending(_) {
             }
         }],
         pagination: {
-            total_count: 100000,
+            total_count: totalCount,
             count: 1,
             offset: 0
         },
@@ -59,7 +64,7 @@ function random(_) {
             }
         }],
         pagination: {
-            total_count: 100000,
+            total_count: totalCount,
             count: 1,
             offset: 0
         },
@@ -72,6 +77,7 @@ function random(_) {
 }
 
 giphy.__setResultURL = __setResultURL;
+giphy.__setTotalCount = __setTotalCount;
 giphy.GiphyFetch.prototype.search = search;
 giphy.GiphyFetch.prototype.trending = trending;
 giphy.GiphyFetch.prototype.random = random;

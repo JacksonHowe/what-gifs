@@ -1,8 +1,9 @@
-module.exports = function State(theme) {
+module.exports = function State(theme, gifOffsetMax) {
   this.judge = {};
   this.theme = theme;
   this.submissions = [];
   this.gif = "";
+  this.gifOffsetMax = gifOffsetMax;
 
   this.setTheme = function(t) {
     this.theme = t;

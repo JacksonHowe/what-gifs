@@ -27,6 +27,9 @@ describe("Test suite for router object", () => {
         getTheme() {
           return "default";
         },
+        getMaxGifOffset() {
+          return 0;
+        },
         getState() {
           return this.state;
         },
@@ -53,6 +56,9 @@ describe("Test suite for router object", () => {
         },
         getTheme() {
           return "football";
+        },
+        getMaxGifOffset() {
+          return 4999;
         },
         getState() {
           return this.state;
@@ -143,6 +149,9 @@ describe("Test suite for router object", () => {
       getJudge: getJudgeMock,
       getTheme() {
         return "default";
+      },
+      getMaxGifOffset() {
+        return 0;
       },
       state: {
         judge: new Player("UUID", "Player Name", "socket")
