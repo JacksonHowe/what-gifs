@@ -68,6 +68,11 @@
           <v-col cols="12">
             <h2>You are the judge!</h2>
             <h2>Waiting for submissions</h2>
+            <v-btn
+              @click="forceContinue"
+            >
+              Continue Now
+            </v-btn>
           </v-col>
         </template>
         <template v-else>
@@ -275,6 +280,14 @@
           action: 'setgif',
           gameID: this.gameID,
           playerID: this.playerID
+        }
+        this.sendMessage(data)
+      },
+
+      forceContinue () {
+        const data = {
+          action: 'continueplay',
+          gameID: this.gameID
         }
         this.sendMessage(data)
       },
