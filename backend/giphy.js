@@ -15,6 +15,10 @@ const { GiphyFetch } = require("@giphy/js-fetch-api");
 const giphy = new GiphyFetch(process.env.GIPHY_API_KEY);
 const PAGE_SIZE = 1; // Can be any number 1-100
 const RATING = "g"; // Can be "y", "g", "pg", "pg-13", or "r"
+// The following values can be found in the Giphy API documentation
+const OFFSET_MIN = 0;
+const OFFSET_MAX_SEARCH = 4999;
+const OFFSET_MAX_TRENDING = 4999;
 
 // Generate a random offset in the range [min, max] (both inclusive)
 // to use in the Giphy API calls.
@@ -25,7 +29,7 @@ function offset(min, max) {
 // Retrieve a trending GIF
 async function getTrending() {
     try {
-        const result = await giphy.trending({ limit: PAGE_SIZE, rating: RATING, offset: offset(0, 4999) });
+        const result = await giphy.trending({ limit: PAGE_SIZE, rating: RATING, offset: offset(OFFSET_MIN, OFFSET_MAX_TRENDING) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
@@ -34,13 +38,23 @@ async function getTrending() {
 }
 
 // Retrieve a GIF via a search term
-async function giphySearch(term) {
+async function giphySearch(term, offsetMax) {
     try {
-        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: offset(0, 4999) });
+        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: offset(OFFSET_MIN, offsetMax) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
         logger.error(`SEARCH`, JSON.stringify(error));
+    }
+}
+
+// Make a search request and determine the max search offset from the results.
+async function getSearchOffsetMax(term) {
+    try {
+        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: 0 });
+        return Math.min(result.pagination.total_count, OFFSET_MAX_SEARCH);
+    } catch (error) {
+        logger.error(`GET SEARCH OFFSET MAX`, JSON.stringify(error));
     }
 }
 
@@ -60,12 +74,20 @@ async function getRandom(tag = "") {
     }
 }
 
-module.exports = async function getGif(theme) {
+async function getGif(theme, offsetMax) {
     let result;
     if (theme !== "default") {
-        result = await giphySearch(theme);
+        result = await giphySearch(theme, offsetMax);
     } else {
         result = await getTrending();
     }
     return result;
 }
+
+exports.getGif = getGif;
+exports.getOffsetMax = getSearchOffsetMax;
+exports.offsetValues = {
+    min: OFFSET_MIN,
+    searchMax: OFFSET_MAX_SEARCH,
+    trendingMax: OFFSET_MAX_TRENDING
+};

@@ -27,6 +27,9 @@ describe("Test suite for router object", () => {
         getTheme() {
           return "default";
         },
+        getMaxGifOffset() {
+          return 0;
+        },
         getState() {
           return this.state;
         },
@@ -53,6 +56,9 @@ describe("Test suite for router object", () => {
         },
         getTheme() {
           return "football";
+        },
+        getMaxGifOffset() {
+          return 4999;
         },
         getState() {
           return this.state;
@@ -143,6 +149,9 @@ describe("Test suite for router object", () => {
       getJudge: getJudgeMock,
       getTheme() {
         return "default";
+      },
+      getMaxGifOffset() {
+        return 0;
       },
       state: {
         judge: new Player("UUID", "Player Name", "socket")
@@ -277,7 +286,10 @@ describe("Test suite for router object", () => {
       const r = await parse(payload, game);
       expect(r.status).toBe(200);
       expect(sendToHostMock).not.toHaveBeenCalled();
-      expect(sendToJudgeMock).toHaveBeenCalledWith({ "error": "You can't eliminate the last caption" });
+      expect(sendToJudgeMock).toHaveBeenCalledWith({
+        status: 400,
+        msg: "You can't eliminate the last caption"
+      });
     });
   });
 
@@ -358,5 +370,46 @@ describe("Test suite for router object", () => {
     expect(sendToPlayerMock).toHaveBeenCalledWith({
       caption: game.captions.contents[game.captions.next - 1]
     }, 1);
+  });
+
+  test("continueplay action", async () => {
+    // Setup
+    const sendAllPlayersMock = jest.fn();
+    const sendToJudgeMock = jest.fn();
+    const sendToHostMock = jest.fn();
+    const game = {
+      players: [
+        new Player(1, "one", "conn"),
+        new Player(2, "two", "conn"),
+        new Player(3, "three", "conn")
+      ],
+      state: {
+        submissions: [
+          new Submission(1, 'caption')
+        ]
+      },
+      sendAllPlayers: sendAllPlayersMock,
+      sendToJudge: sendToJudgeMock,
+      sendToHost: sendToHostMock,
+    };
+
+    // Run test
+    const payload = {
+      action: "continueplay"
+    };
+    const response = await parse(payload, game);
+
+    // Validate results
+    expect(response.status).toBe(200);
+    expect(sendToHostMock).toHaveBeenCalledWith({
+      submissions: game.state.submissions,
+      playState: "selectWinnerPending"
+    });
+    expect(sendAllPlayersMock).toHaveBeenCalledWith({
+      playState: "selectWinnerPending"
+    });
+    expect(sendToJudgeMock).toHaveBeenCalledWith({
+      submissions: game.state.submissions
+    });
   });
 });

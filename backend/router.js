@@ -1,8 +1,8 @@
-const getGif = require("./giphy");
+const { getGif } = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
-const player = require("./game-objects/player");
+const objects = require("./custom-objects");
 
 const playersReady = (request, game) => {
   //Select a judge and send that state to judge
@@ -26,19 +26,44 @@ const recordSubmission = (request, game) => {
   game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
 
   if (game.state.submissions.length >= game.players.length - 1) {
+    // Start the judging, but don't update all player play states since
+    // they've already been updated by this function.
+    startJudging(request, game, false);
     //Send submissions to Host
-    game.sendToHost({
-      submissions: game.state.submissions,
-      playState: PlayState.Host.selectWinnerPending
-    });
+    // game.sendToHost({
+    //   submissions: game.state.submissions,
+    //   playState: PlayState.Host.selectWinnerPending
+    // });
     //Send to the judge
+    // game.sendToJudge({
+    //   submissions: game.state.submissions,
+    //   playState: PlayState.Player.selectWinnerPending
+    // });
+  }
+  logger.info(`Sending new caption back to player`);
+  replaceCaption(request, game);
+};
+
+const startJudging = (request, game, updateAllPlayersPlayState) => {
+  // Send submissions to Host
+  game.sendToHost({
+    submissions: game.state.submissions,
+    playState: PlayState.Host.selectWinnerPending
+  });
+  // Update all players to "selectWinnerPending" game state to ensure
+  // no more submissions are sent and send submissions to Judge.
+  // If the players have already been updated, just update the Judge.
+  if (updateAllPlayersPlayState) {
+    game.sendAllPlayers({ playState: PlayState.Player.selectWinnerPending });
+    game.sendToJudge({
+      submissions: game.state.submissions
+    });
+  } else {
     game.sendToJudge({
       submissions: game.state.submissions,
       playState: PlayState.Player.selectWinnerPending
     });
   }
-  logger.info(`Sending new caption back to player`);
-  replaceCaption(request, game);
 };
 
 const chooseWinner = (request, game) => {
@@ -76,14 +101,14 @@ const setGif = (request, game) => {
 };
 
 const getNewGif = async game => {
-  const gifUrl = await getGif(game.getTheme());
+  const gifUrl = await getGif(game.getTheme(), game.getMaxGifOffset());
   game.setGif(gifUrl);
   game.sendToHost({ gifUrl });
 };
 
 const eliminateCaption = (request, game) => {
   if (game.state.submissions.length < 2) {
-    game.sendToJudge({ error: "You can't eliminate the last caption" });
+    game.sendToJudge(objects.error(400, "You can't eliminate the last caption"));
     return;
   }
   // Remove all submissions from game state with the requested caption
@@ -137,6 +162,9 @@ const parse = async (request, game) => {
     case "playersready":
       await getNewGif(game);
       playersReady(request, game);
+      break;
+    case "continueplay":
+      startJudging(request, game, true);
       break;
     default:
       ret.status = 400;
