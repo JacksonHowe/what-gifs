@@ -76,15 +76,27 @@
           </v-col>
           <v-col cols="12">
             <v-card
-              v-for="caption, index in captions"
+              v-for="caption, index in captionsMap"
               class="ma-3"
-              :key="caption"
+              :key="index"
               :color="selectedIndex === index ? 'light-blue lighten-3' : ''"
               @click="selectedIndex = index"
             >
-              <v-card-text class="black--text">
-                {{ caption }}
-              </v-card-text>
+              <div v-if="!caption.wild">
+                <v-card-text class="black--text">
+                  {{ caption.text }}
+                </v-card-text>
+              </div>
+              <div v-else>
+                <v-card-text>
+                  <v-text-field
+                    v-model="caption.text"
+                    label="Wild Card"
+                    outlined
+                    hide-details
+                  />
+                </v-card-text>
+              </div>
             </v-card>
           </v-col>
 
@@ -149,6 +161,8 @@
 </template>
 
 <script>
+  import settings from '../config'
+
   export default {
     name: 'Game',
 
@@ -169,7 +183,7 @@
         judge: false,
         captions: [],
         submissions: [],
-        caption: 'New Caption',
+        caption: '',
         selectedIndex: -1
       }
     },
@@ -186,12 +200,21 @@
     computed: {
       submissionsLeft () {
         return this.submissions.filter(submission => !submission.disabled).length
+      },
+      captionsMap () {
+        return this.captions.map(caption => {
+          const wild = caption === 'WILD'
+          return {
+            text: wild ? '' : caption,
+            wild: wild
+          }
+        })
       }
     },
 
     methods: {
       joinGame () {
-        this.connection = new WebSocket(`ws://localhost:8080?action=connect&gameID=${this.gameID}&name=${this.name}`)
+        this.connection = new WebSocket(`ws://${settings.hostname}?action=connect&gameID=${this.gameID}&name=${this.name}`)
 
         this.connection.onopen = event => {
           console.log(event)
@@ -207,7 +230,7 @@
         const data = {
           action: 'submitcaption',
           playerID: this.playerID,
-          caption: this.captions[this.selectedIndex],
+          caption: this.captionsMap[this.selectedIndex].text,
           gameID: this.gameID
         }
         this.captions.splice(this.selectedIndex, 1)
