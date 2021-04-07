@@ -57,7 +57,7 @@ server.on("connection", async (socket, req) => {
       case "startgame":
         let theme = params.theme || "default";
         let gifOffsetMax = theme === "default" ? 0 : await getOffsetMax(theme);
-        console.log(`gifOffsetMax: ${gifOffsetMax}`);
+        logger.info(`gifOffsetMax: ${gifOffsetMax}`);
         // Create game state object
         let game = new Game(socket, params.theme || "default", gifOffsetMax);
         let response = {
