@@ -2,7 +2,7 @@ const getGif = require("./giphy");
 const logger = require("./logger")(module);
 const Submission = require("./game-objects/submission");
 const PlayState = require("./game-objects/play-state");
-const player = require("./game-objects/player");
+const objects = require("./custom-objects");
 
 const playersReady = (request, game) => {
   //Select a judge and send that state to judge
@@ -108,7 +108,7 @@ const getNewGif = async game => {
 
 const eliminateCaption = (request, game) => {
   if (game.state.submissions.length < 2) {
-    game.sendToJudge({ error: "You can't eliminate the last caption" });
+    game.sendToJudge(objects.error(400, "You can't eliminate the last caption"));
     return;
   }
   // Remove all submissions from game state with the requested caption
