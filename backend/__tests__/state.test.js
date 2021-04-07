@@ -14,8 +14,10 @@ const OBJECT = {
 
 describe("Testing the state object", () => {
   test("Test if the state object creates correctly", () => {
-    let state = new State("default");
+    expect.assertions(2);
+    let state = new State("default", 4999);
     expect(state.theme).toEqual("default");
+    expect(state.gifOffsetMax).toEqual(4999);
   });
 
   it("Test if the state object can send to a judge", done => {
@@ -71,36 +73,36 @@ describe("Testing the state object", () => {
         expect(state.submissions).toEqual([]);
         ws.close();
       })
-      .on("message", msg => {})
+      .on("message", msg => { })
       .on("close", () => done());
   });
 
   describe('removeSubmission', () => {
-      it('removes requested submission from state', () => {
-          const state = new State("default");
-          state.addSubmission(new Submission('1', 'pizza'));
-          state.addSubmission(new Submission('2', 'donuts'));
-          state.removeSubmission('pizza');
-          expect(state.submissions.length).toBe(1);
-          expect(state.submissions[0].caption).toBe('donuts');
-      });
+    it('removes requested submission from state', () => {
+      const state = new State("default");
+      state.addSubmission(new Submission('1', 'pizza'));
+      state.addSubmission(new Submission('2', 'donuts'));
+      state.removeSubmission('pizza');
+      expect(state.submissions.length).toBe(1);
+      expect(state.submissions[0].caption).toBe('donuts');
+    });
 
-      it('ignores request to remove caption that is not in state', () => {
-          const state = new State("default");
-          state.addSubmission(new Submission('1', 'redbull'));
-          state.removeSubmission('bang');
-          expect(state.submissions.length).toBe(1);
-          expect(state.submissions[0].caption).toBe('redbull');
-      });
+    it('ignores request to remove caption that is not in state', () => {
+      const state = new State("default");
+      state.addSubmission(new Submission('1', 'redbull'));
+      state.removeSubmission('bang');
+      expect(state.submissions.length).toBe(1);
+      expect(state.submissions[0].caption).toBe('redbull');
+    });
 
-      it('removes multiple submissions if they have the same caption', () => {
-          const state = new State("default");
-          state.addSubmission(new Submission('1', 'icecream'));
-          state.addSubmission(new Submission('2', 'icecream'));
-          state.addSubmission(new Submission('3', 'chocolate'));
-          state.removeSubmission('icecream');
-          expect(state.submissions.length).toBe(1);
-          expect(state.submissions[0].caption).toBe('chocolate');
-      });
+    it('removes multiple submissions if they have the same caption', () => {
+      const state = new State("default");
+      state.addSubmission(new Submission('1', 'icecream'));
+      state.addSubmission(new Submission('2', 'icecream'));
+      state.addSubmission(new Submission('3', 'chocolate'));
+      state.removeSubmission('icecream');
+      expect(state.submissions.length).toBe(1);
+      expect(state.submissions[0].caption).toBe('chocolate');
+    });
   });
 });
