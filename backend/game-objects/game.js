@@ -4,12 +4,14 @@ const State = require("./state");
 const CAPTION_FILE = "./../files/captions.txt";
 const HAND_SIZE = 5;
 
-module.exports = function Game(host, theme, gifOffsetMax) {
+module.exports = function Game(host, theme, gifOffsetMax, maxPoints, rating) {
   this.host = host; // Websocket connection
   this.players = [];
   this.nextJudge = 0;
   this.captions = new Captions(CAPTION_FILE);
   this.state = new State(theme, gifOffsetMax);
+  this.maxPoints = maxPoints;
+  this.rating = rating;
 
   this.generateUUID = function() {
     var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
