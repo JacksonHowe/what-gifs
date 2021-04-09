@@ -122,6 +122,31 @@ const eliminateCaption = (request, game) => {
   game.sendToHost({ submissions: game.state.submissions });
 };
 
+const newGame = (request, game) => {
+  //Update theme, ratign and points if provided
+  if (request.theme) {
+    game.setTheme(request.theme);
+  }
+  if (request.rating) {
+    game.setRating(request.rating);
+  }
+  if (request.maxPoints) {
+    game.setMaxPoints(request.maxPoints);
+  }
+  //Send ID and play state to Host
+  game.sendToHost({
+    gameID: game.getId(),
+    playState: PlayState.Host.waitingForPlayers
+  });
+  //Send players list to Host
+  game.sendToHost({ players: game.getPlayers() });
+  //Send 5 captions to each player
+  for (var i = 0; i < game.players.length; i++) {
+    var hand = game.dealFirstHand();
+    game.players[i].send(hand);
+  }
+};
+
 const parse = async (request, game) => {
   var ret = { status: 200 };
   switch (request.action) {
@@ -148,18 +173,7 @@ const parse = async (request, game) => {
       break;
     case "newgame":
       logger.info("New game initiated");
-      //Update theme string if provided
-      if (request.theme) {
-        game.setTheme(request.theme);
-      }
-      //Send players list to Host
-      game.sendToHost({ players: game.getPlayers() });
-      //Send 5 captions to each player
-      for (var i = 0; i < game.players.length; i++) {
-        var hand = game.dealFirstHand();
-        game.players[i].send(hand);
-      }
-
+      newGame(reuqest, game);
       break;
     case "replacecaption":
       logger.info("Player requested new caption");
