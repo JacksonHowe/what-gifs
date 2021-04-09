@@ -173,7 +173,7 @@ const parse = async (request, game) => {
       break;
     case "newgame":
       logger.info("New game initiated");
-      newGame(reuqest, game);
+      newGame(request, game);
       break;
     case "replacecaption":
       logger.info("Player requested new caption");
