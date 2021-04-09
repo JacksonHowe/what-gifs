@@ -106,7 +106,15 @@ module.exports = function Game(host, theme, gifOffsetMax) {
     this.state.setGif(url);
   };
 
+  this.setRating = function(r) {
+    this.rating = r;
+  };
+
+  this.setMaxPoints = function(p) {
+    this.maxPoints = p;
+  };
+
   this.getMaxGifOffset = function() {
     return this.state.gifOffsetMax;
-  }
+  };
 };
