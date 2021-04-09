@@ -75,8 +75,18 @@ const chooseWinner = (request, game) => {
     }
     scores[player.id] = player.score;
   }
-  // Choose new judge and let them know they need to choose a GIF
   game.state.clearSubmissions();
+  // Update the state if there's a winner
+  if (Object.values(scores).filter(s => s >= game.maxPoints).length) {
+    logger.info("Max Points reached - game has ended");
+    game.sendToHost({
+      playState: PlayState.Host.gameFinished,
+      scores, winningSubmission:
+      request.winningSubmission
+    });
+    return;
+  }
+  // Choose new judge and let them know they need to choose a GIF
   game.getJudge();
   game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
   game.sendToJudge({ judge: true });
@@ -101,7 +111,7 @@ const setGif = (request, game) => {
 };
 
 const getNewGif = async game => {
-  const gifUrl = await getGif(game.getTheme(), game.getMaxGifOffset());
+  const gifUrl = await getGif(game.getTheme(), game.getMaxGifOffset(), game.rating);
   game.setGif(gifUrl);
   game.sendToHost({ gifUrl });
 };

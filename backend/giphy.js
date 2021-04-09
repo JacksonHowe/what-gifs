@@ -14,7 +14,7 @@ const logger = require("./logger")(module);
 const { GiphyFetch } = require("@giphy/js-fetch-api");
 const giphy = new GiphyFetch(process.env.GIPHY_API_KEY);
 const PAGE_SIZE = 1; // Can be any number 1-100
-const RATING = "g"; // Can be "y", "g", "pg", "pg-13", or "r"
+const DEFAULT_RATING = "g"; // Can be "y", "g", "pg", "pg-13", or "r"
 // The following values can be found in the Giphy API documentation
 const OFFSET_MIN = 0;
 const OFFSET_MAX_SEARCH = 4999;
@@ -27,9 +27,9 @@ function offset(min, max) {
 }
 
 // Retrieve a trending GIF
-async function getTrending() {
+async function getTrending(rating) {
     try {
-        const result = await giphy.trending({ limit: PAGE_SIZE, rating: RATING, offset: offset(OFFSET_MIN, OFFSET_MAX_TRENDING) });
+        const result = await giphy.trending({ limit: PAGE_SIZE, rating: rating || DEFAULT_RATING, offset: offset(OFFSET_MIN, OFFSET_MAX_TRENDING) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
@@ -38,9 +38,9 @@ async function getTrending() {
 }
 
 // Retrieve a GIF via a search term
-async function giphySearch(term, offsetMax) {
+async function giphySearch(term, offsetMax, rating) {
     try {
-        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: offset(OFFSET_MIN, offsetMax) });
+        const result = await giphy.search(term, { sort: "recent", rating: rating || DEFAULT_RATING, limit: PAGE_SIZE, offset: offset(OFFSET_MIN, offsetMax) });
         const url = result.data.map(gif => gif.images.original.webp)[0];
         return url;
     } catch (error) {
@@ -49,9 +49,9 @@ async function giphySearch(term, offsetMax) {
 }
 
 // Make a search request and determine the max search offset from the results.
-async function getSearchOffsetMax(term) {
+async function getSearchOffsetMax(term, rating) {
     try {
-        const result = await giphy.search(term, { sort: "recent", rating: RATING, limit: PAGE_SIZE, offset: 0 });
+        const result = await giphy.search(term, { sort: "recent", rating: rating || DEFAULT_RATING, limit: PAGE_SIZE, offset: 0 });
         return Math.min(result.pagination.total_count, OFFSET_MAX_SEARCH);
     } catch (error) {
         logger.error(`GET SEARCH OFFSET MAX`, JSON.stringify(error));
@@ -65,21 +65,21 @@ async function getSearchOffsetMax(term) {
 // of by category
 // The random endpoint only returns one result.
 // This function is currently unused and untested.
-async function getRandom(tag = "") {
+async function getRandom(rating, tag = "") {
     try {
-        const result = await giphy.random({ rating: RATING, tag });
+        const result = await giphy.random({ rating: rating || DEFAULT_RATING, tag });
         return result.data.images.original.webp;
     } catch (error) {
         logger.error(`RANDOM`, JSON.stringify(error));
     }
 }
 
-async function getGif(theme, offsetMax) {
+async function getGif(theme, offsetMax, rating) {
     let result;
     if (theme !== "default") {
-        result = await giphySearch(theme, offsetMax);
+        result = await giphySearch(theme, offsetMax, rating);
     } else {
-        result = await getTrending();
+        result = await getTrending(rating);
     }
     return result;
 }
