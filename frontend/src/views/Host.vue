@@ -17,6 +17,19 @@
             label="Theme (Optional)"
             v-model="theme"
           />
+          <v-subheader class="pa-0">Score Limit</v-subheader>
+          <v-slider
+            v-model="maxPoints"
+            class="ma-0"
+            thumb-label="always"
+            :min="1"
+            :max="10"
+          />
+          <v-select
+            v-model="rating"
+            :items="ratings"
+            label="Rating"
+          />
           <v-btn
             @click="startGame"
           >
@@ -196,13 +209,82 @@
             </template>
           </v-simple-table>
         </v-col>
+
+        <v-col cols="12">
+          <v-dialog
+            v-model="newGameDialog"
+            persistent
+            max-width="600px"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="primary"
+                dark
+                v-bind="attrs"
+                v-on="on"
+              >
+                Start New Game
+              </v-btn>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="headline">Game Settings</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="theme"
+                        label="Theme (Optional)"
+                      />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-subheader class="pa-0">Score Limit</v-subheader>
+                      <v-slider
+                        v-model="maxPoints"
+                        thumb-label="always"
+                        :min="1"
+                        :max="10"
+                      />
+                    </v-col>
+                    <v-col cols="12">
+                      <v-select
+                        v-model="rating"
+                        :items="ratings"
+                        label="Rating"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="newGameDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  color="blue darken-1"
+                  text
+                  @click="newGame"
+                >
+                  Start
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </v-col>
       </template>
 
       <v-dialog
         transition="dialog-bottom-transition"
         max-width="600"
         v-if="winningPlayerIndex !== -1"
-        v-model="displayWinner"
+        v-model="displayWinningSubmission"
       >
         <v-card>
           <v-toolbar
@@ -235,15 +317,24 @@
       return {
         connection: null,
         theme: '',
+        maxPoints: 5,
+        rating: 'g',
+        ratings: [
+          { text: 'G', value: 'g' },
+          { text: 'PG', value: 'pg' },
+          { text: 'PG-13', value: 'pg13' },
+          { text: 'R', value: 'r' }
+        ],
         gameID: -1,
         judge: null,
         playState: 'init',
         gifUrl: '',
         players: [],
         scores: [],
-        submissions: ['Caption 1', 'Caption 2', 'Caption 3', 'Caption 4'],
-        displayWinner: false,
-        winningSubmission: {}
+        submissions: [],
+        displayWinningSubmission: false,
+        winningSubmission: {},
+        newGameDialog: false
       }
     },
 
@@ -261,16 +352,26 @@
         }
       },
       winningSubmission () {
-        this.displayWinner  = true
+        this.displayWinningSubmission  = true
         setTimeout(() => {
-          this.displayWinner = false
+          this.displayWinningSubmission = false
         }, 3500)
       }
     },
 
     methods: {
       startGame () {
-        this.connection = new WebSocket(`ws://${settings.hostname}?action=startgame${this.theme ? '&theme=' + this.theme : ''}`)
+        let paramsString = '?action=startgame'
+        if (this.theme) {
+          paramsString += '&theme=' + this.theme
+        }
+        if (this.maxPoints) {
+          paramsString += '&maxPoints=' + this.maxPoints
+        }
+        if (this.rating) {
+          paramsString += '&rating=' + this.rating
+        }
+        this.connection = new WebSocket(`ws://${settings.hostname}${paramsString}`)
 
         this.connection.onopen = event => {
           console.log(event)
@@ -280,6 +381,18 @@
         this.connection.onmessage = event => {
           this.onMessage(JSON.parse(event.data))
         }
+      },
+
+      newGame () {
+        const data = {
+          action: 'newgame',
+          gameID: this.gameID,
+          theme: this.theme,
+          maxPoints: this.maxPoints,
+          rating: this.rating
+        }
+        this.sendMessage(data)
+        this.newGameDialog = false
       },
 
       confirmPlayersReady () {
