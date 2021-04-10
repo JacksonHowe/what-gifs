@@ -7,13 +7,13 @@ const objects = require("./custom-objects");
 const playersReady = (request, game) => {
   //Select a judge and send that state to judge
   game.getJudge();
-  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection });
   game.sendToJudge({ judge: true });
   //Send awaitGifSelection state and new judge to Host
   game.sendToHost({
     playState: PlayState.Host.awaitingGifSelection,
     judge: game.state.judge.getSelf()
-  })
+  });
 };
 
 const recordSubmission = (request, game) => {
@@ -23,7 +23,10 @@ const recordSubmission = (request, game) => {
   game.state.submissions.find(element => element.playerID === request.playerID)
     ? logger.info("Player attempted to resubmit, ignoring")
     : game.state.addSubmission(submission);
-  game.sendToPlayer({ playState: PlayState.Player.selectWinnerPending }, request.playerID)
+  game.sendToPlayer(
+    { playState: PlayState.Player.selectWinnerPending },
+    request.playerID
+  );
 
   if (game.state.submissions.length >= game.players.length - 1) {
     // Start the judging, but don't update all player play states since
@@ -88,7 +91,7 @@ const chooseWinner = (request, game) => {
   }
   // Choose new judge and let them know they need to choose a GIF
   game.getJudge();
-  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection })
+  game.sendAllPlayers({ playState: PlayState.Player.awaitingGifSelection });
   game.sendToJudge({ judge: true });
   // Send new round play state, winning submission, scores, and new judge to host
   game.sendToHost({
@@ -118,13 +121,40 @@ const getNewGif = async game => {
 
 const eliminateCaption = (request, game) => {
   if (game.state.submissions.length < 2) {
-    game.sendToJudge(objects.error(400, "You can't eliminate the last caption"));
+    game.sendToJudge(
+      objects.error(400, "You can't eliminate the last caption")
+    );
     return;
   }
   // Remove all submissions from game state with the requested caption
   game.state.removeSubmission(request.submission.caption);
   // Now send the updated list to the host
   game.sendToHost({ submissions: game.state.submissions });
+};
+
+const newGame = (request, game) => {
+  //Update theme, ratign and points if provided
+  if (request.theme) {
+    game.setTheme(request.theme);
+  }
+  if (request.rating) {
+    game.setRating(request.rating);
+  }
+  if (request.maxPoints) {
+    game.setMaxPoints(request.maxPoints);
+  }
+  //Send ID and play state to Host
+  game.sendToHost({
+    gameID: game.getId(),
+    playState: PlayState.Host.waitingForPlayers
+  });
+  //Send players list to Host
+  game.sendToHost({ players: game.getPlayers() });
+  //Send 5 captions to each player
+  for (var i = 0; i < game.players.length; i++) {
+    var hand = game.dealFirstHand();
+    game.players[i].send(hand);
+  }
 };
 
 const parse = async (request, game) => {
@@ -145,6 +175,7 @@ const parse = async (request, game) => {
     case "choosewinner":
       logger.info("Winner was chosen");
       chooseWinner(request, game);
+      await getNewGif(game);
       break;
     case "eliminatecaption":
       logger.info("Caption eliminated");
@@ -152,18 +183,7 @@ const parse = async (request, game) => {
       break;
     case "newgame":
       logger.info("New game initiated");
-      //Update theme string if provided
-      if (request.theme) {
-        game.setTheme(request.theme);
-      }
-      //Send players list to Host
-      game.sendToHost({ players: game.getPlayers() });
-      //Send 5 captions to each player
-      for (var i = 0; i < game.players.length; i++) {
-        var hand = game.dealFirstHand();
-        game.players[i].send(hand);
-      }
-
+      newGame(request, game);
       break;
     case "replacecaption":
       logger.info("Player requested new caption");

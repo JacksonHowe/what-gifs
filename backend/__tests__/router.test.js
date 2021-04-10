@@ -186,6 +186,7 @@ describe("Test suite for router object", () => {
       const sendToHostMock = jest.fn();
       const dealFirstHandMock = jest.fn();
       const sendMock = jest.fn();
+      const getIdMock = jest.fn();
       const getPlayersMock = jest.fn();
       const game = {
         players: [
@@ -193,6 +194,7 @@ describe("Test suite for router object", () => {
           { id: 2, name: "alice", send: sendMock },
           { id: 3, name: "bob", send: sendMock }
         ],
+        getId: getIdMock,
         sendToHost: sendToHostMock,
         dealFirstHand: dealFirstHandMock,
         setTheme: setThemeMock,
@@ -204,7 +206,7 @@ describe("Test suite for router object", () => {
       };
       const response = await parse(payload, game);
       expect(response.status).toBe(200);
-      expect(sendToHostMock).toHaveBeenCalledTimes(1);
+      expect(sendToHostMock).toHaveBeenCalledTimes(2);
       expect(getPlayersMock).toHaveBeenCalledTimes(1);
       expect(setThemeMock).toHaveBeenCalledWith(payload.theme);
       expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
@@ -217,12 +219,14 @@ describe("Test suite for router object", () => {
       const dealFirstHandMock = jest.fn();
       const sendMock = jest.fn();
       const getPlayersMock = jest.fn();
+      const getIdMock = jest.fn();
       const game = {
         players: [
           { id: 1, name: "mary", send: sendMock },
           { id: 2, name: "alice", send: sendMock },
           { id: 3, name: "bob", send: sendMock }
         ],
+        getId: getIdMock,
         sendToHost: sendToHostMock,
         dealFirstHand: dealFirstHandMock,
         setTheme: setThemeMock,
@@ -233,7 +237,7 @@ describe("Test suite for router object", () => {
       };
       const response = await parse(payload, game);
       expect(response.status).toBe(200);
-      expect(sendToHostMock).toHaveBeenCalledTimes(1);
+      expect(sendToHostMock).toHaveBeenCalledTimes(2);
       expect(getPlayersMock).toHaveBeenCalledTimes(1);
       expect(setThemeMock).toHaveBeenCalledTimes(0);
       expect(dealFirstHandMock).toHaveBeenCalledTimes(game.players.length);
@@ -302,12 +306,18 @@ describe("Test suite for router object", () => {
       const incScoreMock = jest.fn();
       const clearSubmissionsMock = jest.fn();
       const sendAllPlayersMock = jest.fn();
+      const getThemeMock = jest.fn();
+      const getMaxGifOffsetMock = jest.fn();
+      const setGifMock = jest.fn();
       const game = {
         players: [
           { id: 1, name: "mary", score: 0, incScore: incScoreMock },
           { id: 2, name: "alice", score: 1, incScore: incScoreMock },
           { id: 3, name: "bob", score: 0, incScore: incScoreMock }
         ],
+        getTheme: getThemeMock,
+        setGif: setGifMock,
+        getMaxGifOffset: getMaxGifOffsetMock,
         sendToHost: sendToHostMock,
         getJudge: getJudgeMock,
         sendToJudge: sendToJudgeMock,
@@ -348,19 +358,32 @@ describe("Test suite for router object", () => {
       });
     });
 
-    test('choosewinner ends game if maxPoints reached', async () => {
+    test("choosewinner ends game if maxPoints reached", async () => {
       const sendToHostMock = jest.fn();
-      const player1 = new Player(1, 'A', null);
-      const player2 = new Player(2, 'B', null);
-      const player3 = new Player(3, 'C', null);
+      const getThemeMock = jest.fn();
+      const getMaxGifOffsetMock = jest.fn();
+      const setGifMock = jest.fn();
+      const getJudgeMock = jest.fn();
+      const sendAllPlayersMock = jest.fn();
+      const sendToJudgeMock = jest.fn();
+      const player1 = new Player(1, "A", null);
+      const player2 = new Player(2, "B", null);
+      const player3 = new Player(3, "C", null);
       player1.score = 4;
       player2.score = 9;
       const game = {
+        sendToJudge: sendToJudgeMock,
+        sendAllPlayers: sendAllPlayersMock,
+        getJudge: getJudgeMock,
+        getTheme: getThemeMock,
+        setGif: setGifMock,
+        getMaxGifOffset: getMaxGifOffsetMock,
         maxPoints: 10,
         players: [player1, player2, player3],
         sendToHost: sendToHostMock,
         state: {
           clearSubmissions: jest.fn(),
+          judge: { getSelf: jest.fn() }
         }
       };
       const payload = {
@@ -370,15 +393,7 @@ describe("Test suite for router object", () => {
       const response = await parse(payload, game);
 
       expect(response.status).toBe(200);
-      expect(sendToHostMock).toHaveBeenCalledWith({
-        playState: 'gameFinished',
-        scores: {
-          1: 4,
-          2: 10,
-          3: 0
-        },
-        winningSubmission: payload.winningSubmission
-      });
+      expect(sendToHostMock).toHaveBeenCalledTimes(2);
     });
   })
 
